@@ -35,7 +35,7 @@ export function BotasMujer() {
 
     return (
         <div className="container mx-auto py-20 pb-16">
-            <h1 className="dark:text-white text-blue-gray-800 text-3xl font-bold mb-4">{t('Botas y Botines para Mujer')}</h1>
+            <h1 className="dark:text-white text-blue-gray-800 text-3xl mt-4 font-bold mb-4">{t('Botas y Botines para Mujer')}</h1>
             {zapass.length === 0 ? (
                 <p className="text-blue-gray-600 dark:text-blue-gray-100">{t('No hay botas disponibles')}</p>
             ) : (
