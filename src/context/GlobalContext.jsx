@@ -116,7 +116,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteUser = async (id) => {
         try {
             // Haz la solicitud al endpoint del backend
-            const response = await fetch('https://laszapas.vercel.app/api/delete-user', {
+            const response = await fetch('https://las-zapas.vercel.app/api/delete-user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
