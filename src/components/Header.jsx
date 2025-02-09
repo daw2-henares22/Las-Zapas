@@ -51,7 +51,7 @@ export const Header = () => {
 
   return (
     <header className="bg-gray-900 text-white p-4 shadow-md fixed left-0 right-0 z-50">
-      <div className="container mx-auto flex justify-around items-center">
+      <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <h1 className="md:text-2xl lg:text-3xl xl:text-3xl font-bold md:mr-[10px] lg-mr-0 xl:mr-0">
           <Link to="/">Las Zapas</Link>
