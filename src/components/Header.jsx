@@ -43,7 +43,7 @@ export const Header = () => {
     });
   }
 
-  // Sirve para hacer un .map para las rutas. NO ENRUTA y se encesita si o si el enrutamiento del Router en App.jsx
+  // Sirve para hacer un .map para las rutas. NO ENRUTA y se necesita si o si el enrutamiento del Router en App.jsx
   const menuRoutes = [
     { path: "/hombre", label: t('Hombre') },
     { path: "/mujer", label: t('Mujer') },
@@ -51,25 +51,17 @@ export const Header = () => {
 
   return (
     <header className="bg-gray-900 text-white p-4 shadow-md fixed left-0 right-0 z-50">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex justify-around items-center">
         {/* Logo */}
-        <h1 className="text-2xl sm:text-3xl font-bold">
+        <h1 className="md:text-2xl lg:text-3xl xl:text-3xl font-bold md:mr-[10px] lg-mr-0 xl:mr-0">
           <Link to="/">Las Zapas</Link>
         </h1>
-
+        {session && session.user && session.user.user_metadata && (
+          <p className="hidden md:block hover:text-gray-400 md:mr-[0px] lg:mr-[0px] xl:ml-[70px] md:flex-1 lg:flex-1 xl:flex-1">{t('Bienvenido')} {session.user.user_metadata.name}</p>
+        )}
         {/* Menú para pantallas grandes */}
         <nav className="hidden md:block">
           <ul className="flex space-x-4 items-center">
-            <button
-              onClick={changeDarkMode}
-              className="h-7 w-7 bg-white dark:bg-blue-gray-800 rounded-md shadow-lg"
-              aria-hidden="true"
-            >
-              <ImContrast className="w-full dark:text-white text-blue-gray-800" />
-            </button>
-            {session && session.user && session.user.user_metadata && (
-              <li className="hover:text-gray-400">{t('Bienvenido')} {session.user.user_metadata.name}</li>
-            )}
             {!session && (
               <li className="hover:text-gray-400">
                 <Login/>
@@ -102,6 +94,13 @@ export const Header = () => {
                 <Button onClick={handleLogout}>{t('Cerrar Sesión')}</Button>
               </li>
             )}
+            <button
+              onClick={changeDarkMode}
+              className="h-7 w-7 bg-white dark:bg-blue-gray-800 rounded-md shadow-lg"
+              aria-hidden="true"
+            >
+              <ImContrast className="w-full dark:text-white text-blue-gray-800" />
+            </button>
           </ul>
         </nav>
 
