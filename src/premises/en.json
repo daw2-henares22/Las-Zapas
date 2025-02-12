@@ -1,5 +1,6 @@
 {
     "Bienvenido":"Welcome",
+    "Creado por":"Created by",
     "Registro":"Register",
     "Nombre":"Nombre",
     "Ingresa tu correo y contraseña para registrarte":"Enter your email and password to register",
@@ -31,6 +32,7 @@
     "Hombre":"Man",
     "Mujer":"Women",
     "Usuarios":"Users",
+    "Perfil":"Profile",
     "Mujeres":"Women",
     "Hombres":"Men",
     "Ver Más":"See More",

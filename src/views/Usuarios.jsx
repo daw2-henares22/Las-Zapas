@@ -38,7 +38,7 @@ export const Usuarios = () => {
 
     return (
         <div className="container mx-auto py-20 pb-16">
-            <h1 className="dark:text-white text-blue-gray-800 text-3xl font-bold mt-4 mb-4">
+            <h1 className="dark:text-white text-blue-gray-800 text-3xl font-bold mb-4 mt-14">
                 {t('Gestión de Usuarios')}
             </h1>
             <div className="overflow-x-auto bg-white shadow-md rounded-lg">
@@ -114,6 +114,7 @@ export const Usuarios = () => {
                                         ) : (
                                             <Button
                                                 size="sm"
+                                                color="blue"
                                                 onClick={() => {
                                                     setEditUserId(user.id);
                                                     setNewName(user.name_user);

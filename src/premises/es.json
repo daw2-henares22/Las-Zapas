@@ -1,5 +1,6 @@
 {
     "Bienvenido":"Bienvenido",
+    "Creado por":"Creado por",
     "Registro":"Registro",
     "Ingresa tu correo y contraseña para registrarte":"Ingresa tu correo y contraseña para registrarte",
     "Nombre":"Nombre",
@@ -31,6 +32,7 @@
     "Hombre":"Hombre",
     "Mujer":"Mujer",
     "Usuarios":"Usuarios",
+    "Perfil":"Perfil",
     "Mujeres":"Mujeres",
     "Hombres":"Hombres",
     "Ver Más":"Ver Más",

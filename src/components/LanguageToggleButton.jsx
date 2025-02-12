@@ -11,7 +11,7 @@ export function LanguageToggleButton() {
   return (
     <button
       onClick={toggleLanguage}
-      className="px-2 py-1 mx-1 text-white hover:text-blue-gray-400 hover:scale-x-105 hover:scale-y-105 transition duration-150 border-double border-4 border-spacing-4 border-white rounded"
+      className="sm:py-1 sm:px-1 lg:py-1 lg:px-2 xl:py-1 xl:px-2 text-white hover:text-blue-gray-400 hover:scale-105 active:scale-95 transition-transform duration-150 border-double border-4 border-white rounded"
     >
       {i18n.language === 'es' ? 'ES' : 'EN'}
     </button>

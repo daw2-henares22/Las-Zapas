@@ -9,6 +9,7 @@ import {
   CardFooter,
 } from "@material-tailwind/react";
 import { supabase } from "../bd/supabase";
+import { useGlobalContext } from "../context/GlobalContext";
 
 export function Comprar() {
   const { tableName, nombre } = useParams();
@@ -19,6 +20,7 @@ export function Comprar() {
   const [popupOpen, setPopupOpen] = useState(false);
   const [selectedTallas, setSelectedTallas] = useState([]);
   const [isTallasMenuOpen, setIsTallasMenuOpen] = useState(false);
+  const {session}= useGlobalContext();
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -64,6 +66,28 @@ export function Comprar() {
     newTallas.splice(index, 1);
     setSelectedTallas(newTallas);
   };
+
+  const handleComprar = async () => {
+    if (selectedTallas.length === 0) return;
+
+    try {
+        const { data, error } = await supabase
+            .from("Compras")
+            .insert(selectedTallas.map(talla => ({
+                uid: session?.user.id,
+                puid: item.id,
+                tabla_producto: tableName, // Guardamos la tabla de origen
+                created_at: new Date()
+            })));
+
+        if (error) throw error;
+
+        setShowSuccessPopup(true);
+    } catch (error) {
+        console.error("Error al guardar la compra:", error.message);
+    }
+};
+
 
   const totalPrecio = selectedTallas.length * (parseFloat(item?.precio) || 0);
 
@@ -142,7 +166,7 @@ export function Comprar() {
                 size="lg"
                 variant="gradient"
                 className="mt-4"
-                onClick={() => setShowSuccessPopup(true)}
+                onClick={handleComprar}
                 disabled={selectedTallas.length === 0}
               >
                 Comprar Ahora

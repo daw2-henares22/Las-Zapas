@@ -14,6 +14,7 @@ export const GlobalProvider = ({ children }) => {
     const [botasMujer, setBotasMujer] = useState([]);
     ////////////////////////////
 
+    const [compras, setCompras] = useState([]);
     const [zapass, setZapass] = useState([]);
     const [activePopup, setActivePopup] = useState(null); // Manejo de popups
     const [session, setSession] = useState(null); // Sesión actual del usuario
@@ -42,8 +43,11 @@ export const GlobalProvider = ({ children }) => {
         
                 if (data.session?.user) {
                     await fetchUserData(data.session.user.id);
+                    await fetchCompras(data.session.user.id);  // 👉 Llamar función aquí
                 } else {
                     setIsAdmin(false); // Por defecto, no es admin si no hay sesión
+                    setCompras([]);  // Limpiar compras si no hay sesión
+
                 }
             };
         
@@ -54,8 +58,10 @@ export const GlobalProvider = ({ children }) => {
         
                 if (session?.user) {
                     fetchUserData(session.user.id);
+                    fetchCompras(session.user.id);  // 👉 Actualizar compras al cambiar usuario
                 } else {
                     setIsAdmin(false); // Por defecto, no es admin si no hay sesión
+                    setCompras([]);
                 }
             });
         
@@ -190,6 +196,46 @@ export const GlobalProvider = ({ children }) => {
             setError(error.message);
         }
     };
+
+    //Compras
+
+    const fetchCompras = async (userId) => {
+        try {
+            const { data: compras, error } = await supabase
+                .from("Compras")
+                .select("id, created_at, puid, tabla_producto")
+                .eq("uid", userId);
+            
+            if (error) throw error;
+    
+            // Obtener los detalles de cada producto de su tabla respectiva
+            const productosComprados = await Promise.all(
+                compras.map(async (compra) => {
+                    const { data: producto, error: errorProducto } = await supabase
+                        .from(compra.tabla_producto) // Consultamos en la tabla específica
+                        .select("nombre, imagen, precio")
+                        .eq("id", compra.puid)
+                        .single();
+                    
+                    if (errorProducto) {
+                        console.error(`Error obteniendo producto ${compra.puid} de ${compra.tabla_producto}:`, errorProducto);
+                        return null;
+                    }
+    
+                    return { ...compra, producto };
+                })
+            );
+    
+            // Filtramos los productos que se encontraron correctamente
+            setCompras(productosComprados.filter(item => item !== null));
+    
+        } catch (error) {
+            console.error("Error obteniendo compras:", error.message);
+            setError(error.message);
+        }
+    };
+    
+    /////////////////
 
     const handleOpenImage = (item) => {
         setSelectedItem(item); // Establece el elemento seleccionado para el popup.
@@ -329,6 +375,8 @@ export const GlobalProvider = ({ children }) => {
             setZapatillasMujer,
             botasMujer,
             setBotasMujer,
+            compras,
+            fetchCompras,
             zapass,
             setZapass,
             activePopup,
