@@ -15,7 +15,8 @@ import { BotasMujer } from './components/mujer/BotasMujer'
 import { ZapatillasMujer } from './components/mujer/ZapatillasMujer'
 import { ZapatillasHombre } from './components/hombre/ZapatillasHombre'
 import { Comprar } from './views/Comprar'
-import Perfil from './views/Perfil'
+import { Perfil } from './views/Perfil'
+import { Devoluciones } from './views/Devoluciones'
 
 export default function App() {
 
@@ -39,6 +40,7 @@ export default function App() {
         <Route path='/zapatosMujer' element={<ZapatosDeVestirMujer />} />
         <Route path='/usuarios' element={<Usuarios />} />
         <Route path='/perfil' element={<Perfil />} />
+        <Route path='/devoluciones' element={<Devoluciones />} />
         <Route path='/comprar/:tableName/:nombre' element={<Comprar />} />
         <Route path='/footer' element={<Footer />} />
       </Routes>

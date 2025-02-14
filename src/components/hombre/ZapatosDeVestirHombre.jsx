@@ -1,3 +1,4 @@
+
 import { Dialog, Card, CardBody, CardFooter, Input, Typography, Button } from '@material-tailwind/react';
 import { useEffect } from "react";
 import { useGlobalContext } from '../../context/GlobalContext';
@@ -34,6 +35,7 @@ export function ZapatosDeVestirHombre() {
     }, [fetchTableData]);
 
     return (
+        <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800">
         <div className="container mx-auto py-20 pb-16">
             <h1 className="dark:text-white text-blue-gray-800 text-3xl font-bold mt-14 mb-4">{t('Zapatos para Hombre')}</h1>
             {zapass.length === 0 ? (
@@ -137,6 +139,7 @@ export function ZapatosDeVestirHombre() {
                     </form>
                 </Card>
             </Dialog>
+        </div>
         </div>
     );
 }

@@ -37,6 +37,7 @@ export const Usuarios = () => {
     };
 
     return (
+        <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800">
         <div className="container mx-auto py-20 pb-16">
             <h1 className="dark:text-white text-blue-gray-800 text-3xl font-bold mb-4 mt-14">
                 {t('Gestión de Usuarios')}
@@ -146,5 +147,6 @@ export const Usuarios = () => {
                 </table>
             </div>
         </div>
+        </div> 
     );
 };

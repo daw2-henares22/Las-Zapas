@@ -34,6 +34,7 @@ export function BotasMujer() {
     }, [fetchTableData]);
 
     return (
+        <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800">
         <div className="container mx-auto py-20 pb-16">
             <h1 className="dark:text-white text-blue-gray-800 text-3xl font-bold mt-14 mb-4">{t('Botas y Botines para Mujer')}</h1>
             {zapass.length === 0 ? (
@@ -137,6 +138,7 @@ export function BotasMujer() {
                     </form>
                 </Card>
             </Dialog>
+        </div>
         </div>
     );
 }

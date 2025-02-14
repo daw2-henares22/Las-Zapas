@@ -53,11 +53,11 @@ export const Header = () => {
     <header className="bg-gray-900 text-white p-4 shadow-md fixed left-0 right-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <h1 className="sm:text-3xl lg:text-3xl xl:text-3xl font-bold">
+        <h1 className="sm:text-2xl lg:text-3xl xl:text-3xl font-bold">
           <Link to="/">Las Zapas</Link>
         </h1>
         {session && session.user && session.user.user_metadata && (
-          <p className="hidden md:block hover:text-gray-400  md:mr-[50px] md:ml-[30px] lg:ml[70px] xl:ml-[70px] flex-1 font-semibold md:text-[16px] lg:text-[16px] xl:text-[16px]">{t('Bienvenido')} {session.user.user_metadata.name}</p>
+          <p className="hidden md:block hover:text-gray-400  md:mr-[50px] md:ml-[30px] lg:ml[70px] xl:ml-[70px] flex-1 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]">{t('Bienvenido')} {session.user.user_metadata.name}</p>
         )}
 
         {/* Menú para pantallas grandes */}
@@ -72,7 +72,7 @@ export const Header = () => {
               <>
                 {menuRoutes.map(item => 
                   location.pathname !== item.path && (
-                    <li key={item.path} className="hover:text-gray-400 font-semibold md:text-[16px] lg:text-[16px] xl:text-[16px] transition duration-150 hover:scale-105">
+                    <li key={item.path} className="hover:text-gray-400 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px] transition duration-150 hover:scale-105">
                       <Link to={item.path}>{item.label}</Link>
                     </li>
                   )
@@ -83,30 +83,40 @@ export const Header = () => {
               <li className="transition duration-150 hover:scale-105">
                 <Link
                   to="/perfil"
-                  className="hover:text-gray-400 font-semibold md:text-[16px] lg:text-[16px] xl:text-[16px]"
+                  className="hover:text-gray-400 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]"
                 >
                   {t('Perfil')}
                 </Link>
               </li>
             )}
             {isAdmin && (
+              <>
               <li className="transition duration-150 hover:scale-105">
                 <Link
                   to="/usuarios"
-                  className="hover:text-gray-400 font-semibold md:text-[16px] lg:text-[16px] xl:text-[16px]"
+                  className="hover:text-gray-400 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]"
                 >
                   {t('Usuarios')}
                 </Link>
               </li>
+              <li className="transition duration-150 hover:scale-105">
+              <Link
+                to="/devoluciones"
+                className="hover:text-gray-400 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]"
+              >
+                {t('Devoluciones')}
+              </Link>
+            </li>
+            </>
             )}
             {session && (
               <li>
-                <Button onClick={handleLogout}>{t('Cerrar Sesión')}</Button>
+                <Button className=" md:text-[11px] lg:text-[12px] xl:text-[12px]" onClick={handleLogout}>{t('Cerrar Sesión')}</Button>
               </li>
             )}
             <button
               onClick={changeDarkMode}
-              className=" sm:h-7 sm:w-8 lg:h-7 lg:w-7 xl:h-7 xl:w-7 bg-white dark:bg-blue-gray-800 rounded-md shadow-lg transition duration-150 hover:scale-105"
+              className="sm:h-7 sm:w-8 lg:h-7 lg:w-7 xl:h-7 xl:w-7 bg-white dark:bg-blue-gray-800 rounded-md shadow-lg transition duration-150 hover:scale-105"
               aria-hidden="true"
             >
               <ImContrast className="w-full dark:text-white text-blue-gray-800" />

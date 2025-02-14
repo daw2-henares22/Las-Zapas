@@ -46,7 +46,7 @@ export function Mujer() {
   }, []);
 
   return (
-      <div className="relative flex flex-col items-center py-16">
+      <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800 relative flex flex-col items-center py-16">
         <h2 className="dark:text-white text-black md:text-5xl text-4xl font-extrabold mb-8 mt-8 text-center">
           {t('Zapatos para Mujer')}
         </h2>

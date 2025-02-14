@@ -96,6 +96,7 @@ export function Comprar() {
 
   return (
     <>
+    <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800">
       <div className="container mx-auto py-20 px-4">
       <Card className="w-full max-w-8xl mx-auto">
         <CardBody className="flex flex-col md:flex-row gap-8 items-start">
@@ -197,6 +198,7 @@ export function Comprar() {
           </CardFooter>
         </Card>
       </Dialog>
+      </div>
     </>
   );
 }
