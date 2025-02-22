@@ -1,17 +1,100 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../bd/supabase";
-import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
+import { Button, Typography, Card } from "@material-tailwind/react";
+import { useTranslation } from "react-i18next";
 
 export function Devoluciones() {
+  const { t } = useTranslation();
   const [devoluciones, setDevoluciones] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchDevoluciones = async () => {
-      const { data, error } = await supabase.from("Devoluciones").select("id, motivo, estado, user_id, compra_id, compras (producto (nombre))");
-      if (error) console.error(error);
-      else setDevoluciones(data);
+      setLoading(true);
+    
+      // 1️⃣ Obtener las devoluciones con la compra asociada
+      const { data: devolucionesData, error: devolucionesError } = await supabase
+        .from("Devoluciones")
+        .select("id, estado, motivo, compra_id, seccion, user_id"); // Agregamos user_id
+    
+      if (devolucionesError) {
+        console.error("Error obteniendo devoluciones:", devolucionesError);
+        setLoading(false);
+        return;
+      }
+    
+      // 2️⃣ Obtener los datos de las compras asociadas
+      const compraIds = devolucionesData.map((dev) => dev.compra_id);
+      const { data: compras, error: comprasError } = await supabase
+        .from("Compras")
+        .select("id, puid, tabla_producto, seccion")
+        .in("id", compraIds);
+    
+      if (comprasError) {
+        console.error("Error obteniendo compras:", comprasError);
+        setLoading(false);
+        return;
+      }
+    
+      // 3️⃣ Obtener los productos de sus respectivas tablas
+      let productosFinales = [];
+      for (const compra of compras) {
+        if (!compra.tabla_producto || !compra.puid) continue;
+    
+        const { data: producto, error: productoError } = await supabase
+          .from(compra.tabla_producto) // Tabla dinámica
+          .select("id, nombre, imagen, talla")
+          .eq("id", compra.puid)
+          .single();
+          console.log(`🔍 Buscando producto en tabla: ${compra.tabla_producto}, con ID: ${compra.puid}`);
+          console.log("Producto encontrado:", producto);
+        if (productoError) {
+          console.error(`Error obteniendo producto de ${compra.tabla_producto}:`, productoError);
+          continue;
+        }
+    
+        productosFinales.push({ ...producto, compra_id: compra.id });
+      }
+    
+      // Elimina duplicados por compra_id
+      const productosFinalesUnicos = productosFinales.filter(
+        (value, index, self) => index === self.findIndex((t) => t.compra_id === value.compra_id)
+      );
+    
+      // 4️⃣ Obtener los datos de los usuarios que solicitaron la devolución
+     
+      const { data: usuarios, error: usuariosError } = await supabase
+  .from("Usuarios")
+  .select("id, uid, name_user, email");
+
+if (usuariosError) {
+  console.error("Error obteniendo usuarios:", usuariosError);
+} else {
+  console.log("Usuarios obtenidos:", usuarios);
+}
+    
+      // 5️⃣ Unir los productos y los usuarios con sus devoluciones
+      const devolucionesConProductosYUsuarios = devolucionesData.map((dev) => {
+        const producto = productosFinalesUnicos.find((p) => p.compra_id === dev.compra_id);
+        const compra = compras.find((c) => c.id === dev.compra_id);
+        const usuario = usuarios.find((u) => u.uid === dev.user_id);
+
+        return {
+          ...dev,
+          nombre_producto: producto?.nombre || "Sin producto",
+          imagen_producto: producto?.imagen || "https://via.placeholder.com/150",
+          categoria_producto: producto?.categoria || "Desconocida",
+          seccion_producto: compra?.seccion || "Desconocida",
+          talla_producto: producto?.talla || "No especificada",
+          usuario_nombre: usuario?.name_user || "Desconocido",
+          usuario_email: usuario?.email || "Sin correo",
+        };
+      });
+    
+      setDevoluciones(devolucionesConProductosYUsuarios);
+      setLoading(false);
     };
+    
     fetchDevoluciones();
   }, []);
 
@@ -19,37 +102,136 @@ export function Devoluciones() {
     setLoading(true);
     const { error } = await supabase.from("Devoluciones").update({ estado }).eq("id", id);
     if (error) {
-      console.error(error);
+      console.error("Error actualizando estado:", error);
     } else {
-      setDevoluciones(devoluciones.map((dev) => (dev.id === id ? { ...dev, estado } : dev)));
+      setDevoluciones((prev) =>
+        prev.map((dev) => (dev.id === id ? { ...dev, estado } : dev))
+      );
     }
     setLoading(false);
   };
+  console.log("hola");  // Verifica la estructura de la compra y si la propiedad 'seccion' existe
+  
 
   return (
-    <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800 p-6">
-      <Typography variant="h3" className="mb-4">Gestión de Devoluciones</Typography>
-      <div className="space-y-4">
-        {devoluciones.length > 0 ? (
-          devoluciones.map((dev) => (
-            <Card key={dev.id} className="p-4">
-              <CardBody>
-                <Typography variant="h5">{dev.compras.producto.nombre}</Typography>
-                <Typography className="text-gray-600">Motivo: {dev.motivo}</Typography>
-                <Typography className="mb-2">Estado: {dev.estado}</Typography>
-                {dev.estado === "pendiente" && (
-                  <div className="flex space-x-2">
-                    <Button color="green" onClick={() => handleUpdateEstado(dev.id, "Producto Devuelto")} disabled={loading}>Aceptar</Button>
-                    <Button color="red" onClick={() => handleUpdateEstado(dev.id, "Denegada")} disabled={loading}>Denegar</Button>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          ))
-        ) : (
-          <Typography>No hay devoluciones pendientes.</Typography>
-        )}
-      </div>
-    </div>
-  );
+    <div className="min-h-screen bg-gradient-to-bl from-gray-100 dark:from-gray-800 p-6 pb-20 flex flex-col items-center">
+  <h3 className="text-3xl font-bold text-gray-800 dark:text-gray-100 text-center mb-6 md:mt-24 mt-14">
+  {t('Gestión de Devoluciones')}
+</h3>
+
+  <div className="w-full max-w-6xl space-y-6">
+    {loading ? (
+      <Typography className="text-center text-gray-600">{t('Cargando...')}</Typography>
+    ) : devoluciones.length > 0 ? (
+      devoluciones.map((dev) => (
+        <Card
+          key={dev.id}
+          className="p-4 md:p-6 flex flex-col md:flex-row items-center bg-white dark:bg-gray-900 shadow-lg rounded-lg gap-4"
+        >
+          {/* Imagen */}
+          <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0">
+            <img
+              src={dev.imagen_producto}
+              alt={dev.nombre_producto}
+              className="w-full h-full object-cover rounded-md"
+            />
+          </div>
+
+          {/* Datos en Responsive Grid */}
+<div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+  <Typography
+    className="text-gray-600 font-semibold text-sm"
+  >
+    {t('Solicitado por')}: <span className="font-medium text-gray-500">{dev.usuario_nombre}</span>
+  </Typography>
+  <Typography
+  className={`text-gray-600 font-semibold text-sm whitespace-nowrap overflow-hidden text-ellipsis 
+  ${dev.estado === "Pendiente" 
+    ? "md:max-w-[300px] lg:max-w-[350px] md:ml-[74px] lg:ml-[74px]" 
+    : "max-w-[200px] md:max-w-[250px] lg:max-w-[300px]"
+  }`}
+>
+  {t('Correo')}: <span className="font-medium text-gray-500">{dev.usuario_email}</span>
+</Typography>
+
+  <Typography
+    className={`text-gray-600 font-semibold text-sm ${
+      dev.estado === "Pendiente" ? "md:ml-[146px] lg:ml-[146px]" : ""
+    }`}
+  >
+    {t('Producto')}: <span className="font-medium text-gray-500">{dev.nombre_producto}</span>
+  </Typography>
+  <Typography
+    className="text-gray-600 font-semibold text-sm"
+  >
+    {t('Motivo')}: <span className="italic font-medium text-gray-500">{dev.motivo}</span>
+  </Typography>
+  <Typography
+    className={`text-gray-600 font-semibold text-sm ${
+      dev.estado === "Pendiente" ? "md:ml-[74px] lg:ml-[74px] xl:[0px]" : ""
+    }`}
+  >
+    {t('Sección')}: <span className="font-medium text-gray-500">{dev.seccion_producto}</span>
+  </Typography>
+  <Typography
+    className={`text-gray-600 font-semibold text-sm ${
+      dev.estado === "Pendiente" ? "md:ml-[146px] lg:ml-[146px] xl:[0px]" : ""
+    }`}
+  >
+    {t('Talla')}: <span className="font-medium text-gray-500">{dev.talla_producto}</span>
+  </Typography>
+  <Typography className="font-semibold text-sm">
+    {t('Estado')}:{" "}
+    <span
+      className={`${
+        dev.estado === "Devuelto"
+          ? "text-green-500"
+          : dev.estado === "Denegado"
+          ? "text-red-500"
+          : "text-blue-500"
+      }`}
+    >
+      {t(dev.estado)}
+    </span>
+  </Typography>
+</div>
+
+
+
+          {/* Botones */}
+          {dev.estado === "Pendiente" && (
+            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto md:mt-[160px] lg:mt-[114px] xl:mt-0">
+              <Button
+                color="green"
+                className="text-[13px] px-4 py-2 rounded-md text-white bg-green-500 hover:bg-green-600 transition"
+                onClick={() => handleUpdateEstado(dev.id, t("Devuelto"))}
+                disabled={loading}
+              >
+                {t('Aceptar')}
+              </Button>
+              <Button
+                color="red"
+                className="text-[13px]  px-4 py-2 rounded-md text-white bg-red-500 hover:bg-red-600 transition"
+                onClick={() => handleUpdateEstado(dev.id, t("Denegado"))}
+                disabled={loading}
+              >
+                {t('Denegar')}
+              </Button>
+            </div>
+          )}
+        </Card>
+      ))
+    ) : (
+      <Typography className="text-center text-gray-600">
+        {t('No hay devoluciones pendientes')}
+      </Typography>
+    )}
+  </div>
+</div>
+
+  
+
+  
+);
+
 }

@@ -203,7 +203,7 @@ export const GlobalProvider = ({ children }) => {
         try {
             const { data: compras, error } = await supabase
                 .from("Compras")
-                .select("id, created_at, puid, tabla_producto")
+                .select("id, created_at, puid, tabla_producto, talla")
                 .eq("uid", userId);
             
             if (error) throw error;

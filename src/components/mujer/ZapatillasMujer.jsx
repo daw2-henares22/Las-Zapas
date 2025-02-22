@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useGlobalContext } from '../../context/GlobalContext';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { MdAddToPhotos } from 'react-icons/md';
 
 export function ZapatillasMujer() {
     const { t } = useTranslation()
@@ -69,8 +70,14 @@ export function ZapatillasMujer() {
             )}
 
             {isAdmin && (
-                <div className="absolute bottom-20 right-4">
-                    <Button onClick={handleOpenPut} variant="gradient">{t('Añadir Zapatillas')}</Button>
+                <div className="fixed bottom-20 right-4">
+                    <Button
+                        onClick={handleOpenPut}
+                        variant="gradient"
+                    >
+                    <span className="hidden xl:inline">{t('Añadir Zapatos de Vestir')}</span>
+                    <span className="text-[16px] xl:hidden h-full w-full transition duration-150 hover:scale-105"><MdAddToPhotos /></span>
+                    </Button>
                 </div>
             )}
 

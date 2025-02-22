@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useGlobalContext } from '../../context/GlobalContext';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { MdAddToPhotos } from 'react-icons/md';
 
 export function ZapatosDeVestirHombre() {
     const { t } = useTranslation()
@@ -70,10 +71,17 @@ export function ZapatosDeVestirHombre() {
                 </div>
             )}
             {isAdmin && (
-                <div className="absolute bottom-20 right-4">
-                    <Button onClick={handleOpenPut} variant="gradient">{t('Añadir Zapatos de Vestir')}</Button>
+                <div className="fixed bottom-20 right-4">
+                    <Button
+                        onClick={handleOpenPut}
+                        variant="gradient"
+                    >
+                    <span className="hidden xl:inline">{t('Añadir Zapatos de Vestir')}</span>
+                    <span className="text-[16px] xl:hidden h-full w-full transition duration-150 hover:scale-105"><MdAddToPhotos /></span>
+                    </Button>
                 </div>
             )}
+
             {/* Popup para agregar o editar zapato */}
             <Dialog open={activePopup === "newZapatoBota" || activePopup === "editZapatoBota"} handler={openPopup} size="xs" className="bg-transparent shadow-none">
                 <Card className="dark:bg-blue-gray-900 dark:text-white mx-auto w-full max-w-[24rem]">
