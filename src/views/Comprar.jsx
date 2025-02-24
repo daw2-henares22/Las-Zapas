@@ -168,10 +168,10 @@ export function Comprar() {
               )}
             </div>
 
-            <div className="mr-10 ml-10 mt-4 p-2 bg-gray-100 rounded-md shadow-lg border border-gray-300 max-h-48 overflow-y-auto">
-              <Typography variant="h6" className="text-center mb-2">{t('Tallas Seleccionadas')}</Typography>
+            <div className="mr-10 ml-10 mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-md shadow-lg border border-gray-300 max-h-48 overflow-y-auto">
+              <Typography variant="h6" className="text-center mb-2 dark:text-gray-300">{t('Tallas Seleccionadas')}</Typography>
               {selectedTallas.map((talla, index) => (
-                <div key={index} className="ml-5 mr-5 flex justify-between items-center px-2 py-1 bg-white text-gray-800 rounded-md mb-1">
+                <div key={index} className="ml-5 mr-5 flex justify-between items-center px-2 py-1 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded-md mb-1">
                   <p className="ml-20">{talla}</p>
                   <button onClick={() => handleRemoveTalla(index)} className="mr-20 text-red-500 font-bold">✕</button>
                 </div>

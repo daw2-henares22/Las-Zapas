@@ -107,19 +107,19 @@ export function Perfil() {
 
   return (
     <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800 p-6 pt-24 pb-20 flex justify-center items-center">
-      <div className="max-w-3xl w-full bg-white shadow-2xl rounded-lg p-8 border border-gray-200">
-        <h1 className="text-3xl font-semibold text-gray-900 border-b pb-4 mb-6">{t('Perfil')}</h1>
-        <h2 className="text-2xl font-medium text-gray-800 mb-4">{t('Mis Compras')}</h2>
+      <div className="max-w-3xl w-full bg-white dark:bg-gray-800 shadow-2xl rounded-lg p-8 border border-gray-200 dark:border-gray-600">
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-4 mb-6">{t('Perfil')}</h1>
+        <h2 className="text-2xl font-medium text-gray-800 dark:text-gray-200 mb-4">{t('Mis Compras')}</h2>
         <div className="space-y-6">
           {compras.length > 0 ? (
             compras.map((compra) => (
-              <div key={compra.id} className="flex items-center bg-gray-50 p-5 rounded-lg shadow-md border hover:shadow-lg transition-all">
+              <div key={compra.id} className="flex items-center from-gray-200 bg-gradient-to-bl dark:from-gray-700 p-5 rounded-lg shadow-md border hover:shadow-lg transition-all">
                 <img src={compra.producto?.imagen || "https://via.placeholder.com/100"} alt={compra.producto?.nombre} className="w-24 h-24 object-cover rounded-md" />
                 <div className="ml-5 flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">{compra.producto?.nombre}</h3>
-                  <p className="text-gray-600">{compra.created_at.split("T")[0]}</p>
-                  <p className="text-gray-900">{t('Talla')} {compra.talla}</p>
-                  <p className="text-gray-900 font-bold">${compra.producto?.precio}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{compra.producto?.nombre}</h3>
+                  <p className="text-gray-600 dark:text-gray-300">{compra.created_at.split("T")[0]}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{t('Talla')} {compra.talla}</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-bold">${compra.producto?.precio}</p>
                   {devoluciones[compra.id] ? (
                     <div className="mt-2">
                       <p className="text-sm font-semibold text-gray-800">

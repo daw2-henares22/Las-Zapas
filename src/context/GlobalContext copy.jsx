@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { supabase } from "../bd/supabase";
+import { useParams } from "react-router-dom";
 
 const GlobalContext = createContext();
 
@@ -14,6 +15,7 @@ export const GlobalProvider = ({ children }) => {
     const [botasMujer, setBotasMujer] = useState([]);
     ////////////////////////////
 
+    const [compras, setCompras] = useState([]);
     const [zapass, setZapass] = useState([]);
     const [activePopup, setActivePopup] = useState(null); // Manejo de popups
     const [session, setSession] = useState(null); // Sesión actual del usuario
@@ -22,6 +24,10 @@ export const GlobalProvider = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState(false); // Indica si el usuario es administrador
     const [selectedItem, setSelectedItem] = useState(null);
     const [editData,setEditData] = useState(null);
+    const { tableName, nombre } = useParams();
+    const [item, setItem] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [selectedTallas, setSelectedTallas] = useState([]);
     const [error, setError] = useState(null); // Manejo de errores
     const [tableData, setTableData] = useState({}); // Datos de las tablas (cache)
 
@@ -31,7 +37,6 @@ export const GlobalProvider = ({ children }) => {
         nombre: "",
         created_at: "",
         descripcion: "",
-        talla: "",
         imagen: "",
         precio: "",
     });
@@ -43,8 +48,11 @@ export const GlobalProvider = ({ children }) => {
         
                 if (data.session?.user) {
                     await fetchUserData(data.session.user.id);
+                    await fetchCompras(data.session.user.id);  // 👉 Llamar función aquí
                 } else {
                     setIsAdmin(false); // Por defecto, no es admin si no hay sesión
+                    setCompras([]);  // Limpiar compras si no hay sesión
+
                 }
             };
         
@@ -55,8 +63,10 @@ export const GlobalProvider = ({ children }) => {
         
                 if (session?.user) {
                     fetchUserData(session.user.id);
+                    fetchCompras(session.user.id);  // 👉 Actualizar compras al cambiar usuario
                 } else {
                     setIsAdmin(false); // Por defecto, no es admin si no hay sesión
+                    setCompras([]);
                 }
             });
         
@@ -117,7 +127,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteUser = async (id) => {
         try {
             // Haz la solicitud al endpoint del backend
-            const response = await fetch('https://laszapas.vercel.app/api/delete-user', {
+            const response = await fetch('https://las-zapass.vercel.app/api/delete-user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -192,6 +202,104 @@ export const GlobalProvider = ({ children }) => {
         }
     };
 
+    //Compras
+
+    const fetchCompras = async (userId) => {
+        try {
+            const { data: compras, error } = await supabase
+                .from("Compras")
+                .select("id, created_at, puid, tabla_producto, talla")
+                .eq("uid", userId);
+            
+            if (error) throw error;
+    
+            // Obtener los detalles de cada producto de su tabla respectiva
+            const productosComprados = await Promise.all(
+                compras.map(async (compra) => {
+                    const { data: producto, error: errorProducto } = await supabase
+                        .from(compra.tabla_producto) // Consultamos en la tabla específica
+                        .select("nombre, imagen, precio")
+                        .eq("id", compra.puid)
+                        .single();
+                    
+                    if (errorProducto) {
+                        console.error(`Error obteniendo producto ${compra.puid} de ${compra.tabla_producto}:`, errorProducto);
+                        return null;
+                    }
+    
+                    return { ...compra, producto };
+                })
+            );
+    
+            // Filtramos los productos que se encontraron correctamente
+            setCompras(productosComprados.filter(item => item !== null));
+    
+        } catch (error) {
+            console.error("Error obteniendo compras:", error.message);
+            setError(error.message);
+        }
+    };
+
+    const obtenerSeccionProducto = (tableName) => {
+        const categorias = {
+          "ZapatosDeVestirHombre": "Zapatos para Hombre",
+          "BotasYBotinesHombre": "Botas y Botines para Hombre",
+          "ZapatillasHombre": "Zapatillas para Hombre",
+          "ZapatosDeVestirMujer": "Zapatos para Mujer",
+          "BotasYBotinesMujer": "Botas y Botines para Mujer",
+          "ZapatillasMujer": "Zapatillas para Mujer",
+        };
+        return categorias[tableName] || "Otras categorías";
+      };
+    
+      const fetchItem = useCallback(async (tableName, nombre) => {
+        try {
+          setLoading(true);
+          const { data, error } = await supabase
+            .from(tableName)
+            .select("*")
+            .eq("nombre", nombre)
+            .single();
+          if (error) throw error;
+          setItem(data);
+        } catch (err) {
+          setError("No se pudo cargar el elemento. Inténtalo más tarde.");
+        } finally {
+          setLoading(false);
+        }
+      }, []);
+      
+      useEffect(() => {
+        fetchItem(tableName, nombre);
+      }, [tableName, nombre, fetchItem]); // Dependencias
+    
+      const handleComprar = useCallback(async () => {
+          if (selectedTallas.length === 0) return;
+        
+          let seccionProducto = obtenerSeccionProducto(tableName);
+        
+          try {
+            const { error } = await supabase
+              .from("Compras")
+              .insert(selectedTallas.map(talla => ({
+                uid: session?.user.id,
+                puid: item?.id,
+                tabla_producto: tableName,
+                seccion: seccionProducto,
+                talla: talla,
+                created_at: new Date()
+              })));
+        
+            if (error) throw error;
+        
+            setShowSuccessPopup(true);
+          } catch (error) {
+            console.error("Error al guardar la compra:", error.message);
+          }
+        }, [selectedTallas, session, item, tableName]); // Solo cambia si estas dependencias cambian
+    
+    /////////////////
+
     const handleOpenImage = (item) => {
         setSelectedItem(item); // Establece el elemento seleccionado para el popup.
         openPopup("zapatoBotaDetail"); // Abre el popup específico de la imagen.
@@ -210,7 +318,6 @@ export const GlobalProvider = ({ children }) => {
             nombre: "",
             created_at: "",
             descripcion: "",
-            talla: "",
             imagen: "",
             precio: "",
         })
@@ -269,7 +376,6 @@ export const GlobalProvider = ({ children }) => {
                 nombre: "",
                 created_at: "",
                 descripcion: "",
-                talla: "",
                 imagen: "",
                 precio: "",
             });
@@ -332,6 +438,14 @@ export const GlobalProvider = ({ children }) => {
             setZapatillasMujer,
             botasMujer,
             setBotasMujer,
+            compras,
+            fetchCompras,
+            loading,
+            item,
+            obtenerSeccionProducto,
+            setSelectedTallas,
+            fetchItem,
+            handleComprar,
             zapass,
             setZapass,
             activePopup,

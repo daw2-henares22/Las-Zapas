@@ -65,7 +65,7 @@ export const Usuarios = () => {
                                             value={newName || user.name_user}
                                             onChange={(e) => handleNameChange(e, user.id)}
                                             onKeyDown={(e) => handleKeyDown(e, user.id)}
-                                            className="px-2 py-1 border border-gray-300 rounded-md"
+                                            className="px-2 py-1 border border-gray-300 rounded-md dark:text-gray-800"
                                         />
                                     ) : (
                                         user.name_user
