@@ -12,18 +12,42 @@ export function Perfil() {
   const [selectedCompra, setSelectedCompra] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [motivo, setMotivo] = useState("");
+  const [view, setView] = useState(() => localStorage.getItem("perfilView") || "compras");
   const [showMotivoInput, setShowMotivoInput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMotivo, setErrorMotivo] = useState("");
   const [alertMessage, setAlertMessage] = useState(null);
   const [devoluciones, setDevoluciones] = useState({});
 
+  const [email, setEmail] = useState(session?.user?.email || "");
+  const [nombre, setNombre] = useState("");
+  const [password, setPassword] = useState("");
+
+// Guardar en localStorage cuando cambia la vista
+useEffect(() => {
+  localStorage.setItem("perfilView", view);
+}, [view]);
 
   useEffect(() => {
     if (session?.user?.id) {
         fetchCompras(session.user.id);
     }
 }, [session]);  // Se ejecuta cuando la sesión cambia
+
+const handleUpdateProfile = async () => {
+  if (!email.trim() || !nombre.trim()) {
+    return showAlert(t("Todos los campos son obligatorios"), "red");
+  }
+  try {
+    const { error } = await supabase.auth.updateUser({ email, password });
+    if (error) throw error;
+    showAlert(t("Perfil actualizado"), "green");
+  } catch (error) {
+    showAlert(t("Error al actualizar el perfil"), "red");
+  }
+};
+
+
   useEffect(() => {
     const fetchDevoluciones = async () => {
       const { data } = await supabase.from("Devoluciones").select("*").eq("user_id", session?.user?.id);
@@ -104,12 +128,54 @@ export function Perfil() {
       setLoading(false);
     }
   };
+  // <h2 className={`text-2xl font-medium text-gray-800 dark:text-gray-200 mb-4 hover:text-gray-600
+  //   ${
+  //     view === "editar" ? "bg-gray-900 text-gray-100 rounded-xl cursor-pointer transition duration-150 hover:scale-105" : "text-gray-800 dark:text-gray-200 hover:text-gray-600"
+  //   }`}
+  //     onClick={() => setView("compras")}
+  //   >
+  //     {t("Mis Compras")}
+  //   </h2>
+    
+  //   <h2 className={`text-2xl font-medium text-gray-800 dark:text-gray-200 mb-4 hover:text-gray-600
+  //   ${
+  //     view === "compras" ? "bg-gray-900 text-gray-100 rounded-xl cursor-pointer transition duration-150 hover:scale-105" : "text-gray-800 dark:text-gray-200 hover:text-gray-600"
+  //   }`}
+  //       onClick={() => setView("editar")}
+  //   >
+  //     {t("Editar")}
+  //   </h2>
 
   return (
     <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800 p-6 pt-24 pb-20 flex justify-center items-center">
       <div className="max-w-3xl w-full bg-white dark:bg-gray-800 shadow-2xl rounded-lg p-8 border border-gray-200 dark:border-gray-600">
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-4 mb-6">{t('Perfil')}</h1>
-        <h2 className="text-2xl font-medium text-gray-800 dark:text-gray-200 mb-4">{t('Mis Compras')}</h2>
+        <div className="flex justify-between">
+          <button className={`capitalize text-2xl font-medium px-4 py-2 rounded-xl mb-4 
+            ${view === "compras" ? "text-gray-900 dark:text-gray-100 cursor-text select-text" : "transition duration-150 hover:scale-105 bg-gray-900 dark:bg-gray-200 text-gray-100 dark:text-gray-900"}`}
+            onClick={() => setView("compras")}
+          >
+            {t("Mis Compras")}
+          </button>
+
+          <button className={`capitalize text-2xl font-medium px-4 py-2 rounded-xl mb-4
+            ${view === "editar" ? "text-gray-900 dark:text-gray-100 cursor-text select-text" : "transition duration-150 hover:scale-105 bg-gray-900 dark:bg-gray-200 text-gray-100 dark:text-gray-900"}`}
+            onClick={() => setView("editar")}
+          >
+            {t("Editar")}
+          </button>
+        </div>
+
+        {view === "editar" ? (
+          <div className="space-y-4">
+            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" label={t("Nombre")} value={nombre} onChange={(e) => setNombre(e.target.value)} />
+            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" label={t("Correo electrónico")} value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" label={t("Nueva contraseña")} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Button color="green" onClick={handleUpdateProfile}>{t("Guardar cambios")}</Button>
+          </div>
+        ) : (
+
+        
         <div className="space-y-6">
           {compras.length > 0 ? (
             compras.map((compra) => (
@@ -122,7 +188,7 @@ export function Perfil() {
                   <p className="text-gray-900 dark:text-gray-100 font-bold">${compra.producto?.precio}</p>
                   {devoluciones[compra.id] ? (
                     <div className="mt-2">
-                      <p className="text-sm font-semibold text-gray-800">
+                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                         {t('Estado')}: <span className={
                           devoluciones[compra.id]?.estado === "Devuelto"
                             ? "text-green-500"
@@ -148,6 +214,7 @@ export function Perfil() {
             <p className="text-gray-500 text-center">{t('No tienes compras registradas')}</p>
           )}
         </div>
+        )}
       </div>
       <Dialog size="xs" open={showModal} handler={() => setShowModal(false)}>
         <Card className="mx-auto w-full max-w-[24rem]">
