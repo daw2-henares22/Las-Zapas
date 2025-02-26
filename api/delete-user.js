@@ -1,11 +1,12 @@
-import { supabaseService } from "../backend/supabaseBackend";
+import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método no permitido' }); // Solo permite POST
     }
 
-    
+    const { SUPABASE_URL, SUPABASE_SERVICE_KEY } = process.env;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     const { id } = req.body;
 
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
 
     try {
         // Obtén el UID del usuario desde la tabla `Usuarios`
-        const { data: user, error: fetchError } = await supabaseService
+        const { data: user, error: fetchError } = await supabase
             .from('Usuarios')
             .select('uid')
             .eq('id', id)
