@@ -61,18 +61,22 @@ const handleUpdateProfile = async () => {
       throw new Error(result.error || "Error al actualizar perfil");
     }
 
-    showAlert(t("Perfil actualizado, vuelve a iniciar sesión"), "green");
+    // Actualizar sesión con el nuevo correo y nombre
+    setSession((prevSession) => ({
+      ...prevSession,
+      user: {
+        ...prevSession.user,
+        email,
+        user_metadata: { ...prevSession.user.user_metadata, name: nombre },
+      },
+    }));
 
-    // ⚠️ Redirigir al login
-    navigate("/login"); 
-
+    showAlert(t("Perfil actualizado"), "green");
   } catch (error) {
     console.error("Error al actualizar el perfil:", error);
     showAlert(t("Error al actualizar el perfil"), "red");
   }
 };
-
-
 
 
 
