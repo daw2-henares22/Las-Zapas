@@ -35,47 +35,6 @@ useEffect(() => {
     console.log(session)
 }, [session]);  // Se ejecuta cuando la sesión cambia
 
-// const handleUpdateProfile = async () => {
-//   if (!email.trim() || !nombre.trim()) {
-//     return showAlert(t("Todos los campos son obligatorios"), "red");
-//   }
-
-//   if (!session?.user?.id) {
-//     return showAlert(t("Error: Usuario no identificado"), "red");
-//   }
-
-//   try {
-//     const response = await fetch("https://las-zapass.vercel.app/api/update-user", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({
-//         userId: session.user.id,
-//         nombre,
-//         email,
-//         password: password || undefined, // Solo lo manda si hay contraseña
-//       }),
-//     });
-
-//     const result = await response.json();
-//     if (!response.ok) {
-//       throw new Error(result.error || "Error al actualizar perfil");
-//     }
-
-//     // 🔹 Obtener la sesión actual sin cerrarla
-//     const { data, error } = await supabase.auth.getSession();
-//     if (error) {
-//       throw new Error("Error obteniendo sesión actualizada: " + error.message);
-//     }
-
-//     setSession(data.session); // Actualizar la sesión con los datos reales
-
-//     showAlert(t("Perfil actualizado"), "green");
-//   } catch (error) {
-//     console.error("Error al actualizar el perfil:", error);
-//     showAlert(t("Error al actualizar el perfil"), "red");
-//   }
-// };
-
 const handleUpdateProfile = async () => {
   if (!email.trim() || !nombre.trim()) {
     return showAlert(t("Todos los campos son obligatorios"), "red");
@@ -112,7 +71,6 @@ const handleUpdateProfile = async () => {
     setSession(data.session);
 
     showAlert(t("Perfil actualizado"), "green");
-    
   } catch (error) {
     console.error("Error al actualizar el perfil:", error);
     showAlert(t("Error al actualizar el perfil"), "red");
