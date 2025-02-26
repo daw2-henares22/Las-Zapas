@@ -61,14 +61,13 @@ const handleUpdateProfile = async () => {
       throw new Error(result.error || "Error al actualizar perfil");
     }
 
-    // 🔹 FORZAR LA ACTUALIZACIÓN DE LA SESIÓN
-    const { data, error } = await supabase.auth.refreshSession();
+    // 🔹 Obtener la sesión actual sin cerrarla
+    const { data, error } = await supabase.auth.getSession();
     if (error) {
-      throw new Error("Error actualizando sesión: " + error.message);
+      throw new Error("Error obteniendo sesión actualizada: " + error.message);
     }
 
-    // 🔹 Actualizar sesión con los datos reales de Supabase
-    setSession(data.session);
+    setSession(data.session); // Actualizar la sesión con los datos reales
 
     showAlert(t("Perfil actualizado"), "green");
   } catch (error) {
@@ -76,6 +75,7 @@ const handleUpdateProfile = async () => {
     showAlert(t("Error al actualizar el perfil"), "red");
   }
 };
+
 
 
 
