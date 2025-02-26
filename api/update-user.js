@@ -1,9 +1,12 @@
-import { supabase } from "../src/bd/supabase";
+import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
   }
+
+  const { SUPABASE_URL, SUPABASE_SERVICE_KEY } = process.env;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY); // Crear cliente aquí
 
   const { userId, nombre, email, password } = req.body;
 
@@ -23,7 +26,7 @@ export default async function handler(req, res) {
     }
 
     // 2️⃣ Actualizar el correo en Supabase Auth
-    const { data: userData, error: authError } = await supabase.auth.updateUser({
+    const { data: userData, error: authError } = await supabase.auth.admin.updateUserById(userId, {
       email,
       password: password || undefined, // Solo actualiza si se envía
     });
