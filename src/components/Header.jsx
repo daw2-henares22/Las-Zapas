@@ -23,18 +23,15 @@ export const Header = () => {
   }
 
   async function handleLogout() {
-    openPopup(null); // Cierra popups abiertos
+    openPopup(null);
+    await logout(); // Cierra sesión en Supabase
 
-    const { data: session } = await supabase.auth.getSession();
-    if (!session) {
-        console.warn("No active session found");
-        return;
-    }
+    // Limpia manualmente el almacenamiento local
+    localStorage.removeItem("supabase.auth.token");
+    sessionStorage.removeItem("supabase.auth.token");
 
-    await logout(); // Llama a la función del contexto (que ya hace `signOut()`)
-    setSession(null); // Limpia la sesión
-    setIsAdmin(false); // Asegura que no es admin
-    navigate("/"); // Redirige al home
+    // Refresca la página para asegurar que no haya sesión en caché
+    window.location.reload();
 }
 
 
