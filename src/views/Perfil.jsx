@@ -102,25 +102,22 @@ const handleUpdateProfile = async () => {
       throw new Error(result.error || "Error al actualizar perfil");
     }
 
-    showAlert(t("Perfil actualizado"), "green");
-
-    // 🔹 Si el email o la contraseña cambian, hay que volver a iniciar sesión
-    if (email !== session.user.email || password) {
-      await supabase.auth.signOut(); // Cierra la sesión actual
-      await supabase.auth.signInWithPassword({
-        email,
-        password: password || "", // Si la contraseña no cambió, usa la misma
-      });
+    // 🔹 FORZAR LA ACTUALIZACIÓN DE LA SESIÓN
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error) {
+      throw new Error("Error actualizando sesión: " + error.message);
     }
 
-    // 🔹 Redirigir al home
-    navigate("/");
+    // 🔹 Actualizar sesión con los datos reales de Supabase
+    setSession(data.session);
+
+    showAlert(t("Perfil actualizado"), "green");
+    
   } catch (error) {
     console.error("Error al actualizar el perfil:", error);
     showAlert(t("Error al actualizar el perfil"), "red");
   }
 };
-
 
 
 
