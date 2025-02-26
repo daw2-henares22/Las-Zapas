@@ -8,7 +8,7 @@ export function Perfil() {
 
   const { t } = useTranslation();
 
-  const { compras, session, fetchCompras } = useGlobalContext();
+  const { compras, session, setSession, fetchCompras } = useGlobalContext();
   const [selectedCompra, setSelectedCompra] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [motivo, setMotivo] = useState("");
@@ -32,20 +32,52 @@ useEffect(() => {
     if (session?.user?.id) {
         fetchCompras(session.user.id);
     }
+    console.log(session)
 }, [session]);  // Se ejecuta cuando la sesión cambia
 
 const handleUpdateProfile = async () => {
   if (!email.trim() || !nombre.trim()) {
     return showAlert(t("Todos los campos son obligatorios"), "red");
   }
+
+  if (!session?.user?.id) {
+    return showAlert(t("Error: Usuario no identificado"), "red");
+  }
+
   try {
-    const { error } = await supabase.auth.updateUser({ email, password });
-    if (error) throw error;
+    const response = await fetch("https://las-zapass.vercel.app/api/update-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: session.user.id,
+        nombre,
+        email,
+        password: password || undefined, // Solo lo manda si hay contraseña
+      }),
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || "Error al actualizar perfil");
+    }
+
+    // Actualizar sesión con el nuevo correo y nombre
+    setSession((prevSession) => ({
+      ...prevSession,
+      user: {
+        ...prevSession.user,
+        email,
+        user_metadata: { ...prevSession.user.user_metadata, name: nombre },
+      },
+    }));
+
     showAlert(t("Perfil actualizado"), "green");
   } catch (error) {
+    console.error("Error al actualizar el perfil:", error);
     showAlert(t("Error al actualizar el perfil"), "red");
   }
 };
+
 
 
   useEffect(() => {
@@ -128,23 +160,6 @@ const handleUpdateProfile = async () => {
       setLoading(false);
     }
   };
-  // <h2 className={`text-2xl font-medium text-gray-800 dark:text-gray-200 mb-4 hover:text-gray-600
-  //   ${
-  //     view === "editar" ? "bg-gray-900 text-gray-100 rounded-xl cursor-pointer transition duration-150 hover:scale-105" : "text-gray-800 dark:text-gray-200 hover:text-gray-600"
-  //   }`}
-  //     onClick={() => setView("compras")}
-  //   >
-  //     {t("Mis Compras")}
-  //   </h2>
-    
-  //   <h2 className={`text-2xl font-medium text-gray-800 dark:text-gray-200 mb-4 hover:text-gray-600
-  //   ${
-  //     view === "compras" ? "bg-gray-900 text-gray-100 rounded-xl cursor-pointer transition duration-150 hover:scale-105" : "text-gray-800 dark:text-gray-200 hover:text-gray-600"
-  //   }`}
-  //       onClick={() => setView("editar")}
-  //   >
-  //     {t("Editar")}
-  //   </h2>
 
   return (
     <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800 p-6 pt-24 pb-20 flex justify-center items-center">
@@ -168,8 +183,8 @@ const handleUpdateProfile = async () => {
 
         {view === "editar" ? (
           <div className="space-y-4">
-            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" label={t("Nombre")} value={nombre} onChange={(e) => setNombre(e.target.value)} />
-            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" label={t("Correo electrónico")} value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" type="text" label={t("Nombre")} value={nombre} onChange={(e) => setNombre(e.target.value)} />
+            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" type="email" label={t("Correo electrónico")} value={email} onChange={(e) => setEmail(e.target.value)} />
             <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" label={t("Nueva contraseña")} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             <Button color="green" onClick={handleUpdateProfile}>{t("Guardar cambios")}</Button>
           </div>

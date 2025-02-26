@@ -11,6 +11,8 @@ import { useTranslation } from "react-i18next";
 export const Header = () => {
   const { t } = useTranslation();
 
+
+  
   const { isButtonDisabled, handleButtonClick, session, setSession, isAdmin, setIsAdmin, openPopup, logout } = useGlobalContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para abrir/cerrar el menú móvil
   let navigate = useNavigate();
@@ -57,7 +59,7 @@ export const Header = () => {
           <Link to="/">Las Zapas</Link>
         </h1>
         {session && session.user && session.user.user_metadata && (
-          <p className="hidden md:block hover:text-gray-400  md:mr-[50px] md:ml-[30px] lg:ml[70px] xl:ml-[70px] flex-1 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]">{t('Bienvenido')} {session.user.user_metadata.name}</p>
+          <p className="hidden md:block hover:text-gray-400  md:mr-[50px] md:ml-[30px] lg:ml[70px] xl:ml-[70px] flex-1 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]">{t('Bienvenido')} {localStorage.getItem("user_name") || session.user.user_metadata.name}</p>
         )}
 
         {/* Menú para pantallas grandes */}
