@@ -61,7 +61,7 @@ const handleUpdateProfile = async () => {
       throw new Error(result.error || "Error al actualizar perfil");
     }
 
-    // Actualizar sesión con el nuevo correo y nombre
+    // 🔹 1. Actualizar el estado de la sesión localmente
     setSession((prevSession) => ({
       ...prevSession,
       user: {
@@ -72,11 +72,24 @@ const handleUpdateProfile = async () => {
     }));
 
     showAlert(t("Perfil actualizado"), "green");
+
+    // 🔹 2. Forzar que Supabase refresque la sesión internamente (evita problemas con el cache)
+    const { data, error } = await supabase.auth.refreshSession();
+    
+    if (error) {
+      console.error("Error actualizando sesión:", error);
+      return showAlert(t("Error actualizando sesión"), "red");
+    }
+
+    // 🔹 3. Actualizar la sesión con la nueva data (si Supabase la refresca correctamente)
+    setSession(data.session);
+
   } catch (error) {
     console.error("Error al actualizar el perfil:", error);
     showAlert(t("Error al actualizar el perfil"), "red");
   }
 };
+
 
 
 
