@@ -11,6 +11,8 @@ import { useTranslation } from "react-i18next";
 export const Header = () => {
   const { t } = useTranslation();
 
+
+  
   const { isButtonDisabled, handleButtonClick, session, setSession, isAdmin, setIsAdmin, openPopup, logout } = useGlobalContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para abrir/cerrar el menú móvil
   let navigate = useNavigate();
@@ -21,20 +23,22 @@ export const Header = () => {
   }
 
   async function handleLogout() {
-    // Cierra cualquier popup activo
     openPopup(null);
+    await logout(); // Cierra sesión en Supabase
 
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error during logout:", error);
-    } else {
-      await logout(); // Llama a la función de logout del contexto
-      openPopup(null); // Cierra cualquier popup activo
-      setSession(null); // Limpia la sesión
-      setIsAdmin(false); // Asegúrate de que el usuario no es administrador
-      navigate("/"); // Redirige a la página principal
-    }
-  }
+    // Limpia manualmente el almacenamiento local
+    localStorage.removeItem("supabase.auth.token");
+    sessionStorage.removeItem("supabase.auth.token");
+
+    setSession(null); // Limpia la sesión
+    setIsAdmin(false); // Asegura que no es admin
+    navigate("/"); // Redirige al home
+
+    // Refresca la página para asegurar que no haya sesión en caché
+    window.location.reload();
+}
+
+
   
   function handleLoginClick() {
     setIsMenuOpen(false); // Cierra el menú móvil al abrir el popup
