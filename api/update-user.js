@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     // 1️⃣ Actualizar el nombre en la tabla Usuarios
     const { error: profileError } = await supabase
       .from("Usuarios")
-      .update({ name_user: nombre, email_user: email })
+      .update({ name_user: nombre, email: email })
       .eq("uid", userId);
 
     if (profileError) {
