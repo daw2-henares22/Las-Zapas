@@ -33,9 +33,6 @@ export const Header = () => {
     setSession(null); // Limpia la sesión
     setIsAdmin(false); // Asegura que no es admin
     navigate("/"); // Redirige al home
-
-    // Refresca la página para asegurar que no haya sesión en caché
-    window.location.reload();
 }
 
 
