@@ -24,13 +24,19 @@ export const Header = () => {
 
   async function handleLogout() {
     openPopup(null); // Cierra popups abiertos
-    
+
+    const { data: session } = await supabase.auth.getSession();
+    if (!session) {
+        console.warn("No active session found");
+        return;
+    }
+
     await logout(); // Llama a la función del contexto (que ya hace `signOut()`)
-    
     setSession(null); // Limpia la sesión
     setIsAdmin(false); // Asegura que no es admin
     navigate("/"); // Redirige al home
 }
+
 
   
   function handleLoginClick() {
@@ -54,7 +60,7 @@ export const Header = () => {
           <Link to="/">Las Zapas</Link>
         </h1>
         {session && session.user && session.user.user_metadata && (
-          <p className="hidden md:block hover:text-gray-400  md:mr-[50px] md:ml-[30px] lg:ml[70px] xl:ml-[70px] flex-1 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]">{t('Bienvenido')} {localStorage.getItem("user_name") || session.user.user_metadata.name}</p>
+          <p className="hidden md:block hover:text-gray-400  md:mr-[50px] md:ml-[30px] lg:ml[70px] xl:ml-[70px] flex-1 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]">{t('Bienvenido')} {session.user.user_metadata.name}</p>
         )}
 
         {/* Menú para pantallas grandes */}
