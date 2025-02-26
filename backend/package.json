@@ -1,7 +1,7 @@
 {
     "name": "backend",
     "version": "1.0.0",
-    "main": "api/delete-user.js",
+    "main": "api/update-user.js",
     "type": "module",
     "dependencies": {
       "@supabase/supabase-js": "^2.0.0"
