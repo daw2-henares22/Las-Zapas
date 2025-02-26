@@ -23,20 +23,15 @@ export const Header = () => {
   }
 
   async function handleLogout() {
-    // Cierra cualquier popup activo
-    openPopup(null);
+    openPopup(null); // Cierra popups abiertos
+    
+    await logout(); // Llama a la función del contexto (que ya hace `signOut()`)
+    
+    setSession(null); // Limpia la sesión
+    setIsAdmin(false); // Asegura que no es admin
+    navigate("/"); // Redirige al home
+}
 
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error during logout:", error);
-    } else {
-      await logout(); // Llama a la función de logout del contexto
-      openPopup(null); // Cierra cualquier popup activo
-      setSession(null); // Limpia la sesión
-      setIsAdmin(false); // Asegúrate de que el usuario no es administrador
-      navigate("/"); // Redirige a la página principal
-    }
-  }
   
   function handleLoginClick() {
     setIsMenuOpen(false); // Cierra el menú móvil al abrir el popup
