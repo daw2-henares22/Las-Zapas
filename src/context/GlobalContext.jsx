@@ -37,37 +37,46 @@ export const GlobalProvider = ({ children }) => {
     });
 
     useEffect(() => {
-            const fetchSession = async () => {
-                const { data } = await supabase.auth.getSession();
+        const fetchSession = async () => {
+            const { data } = await supabase.auth.getSession();
+            console.log("🔍 Sesión al cargar:", data.session); // Debug
+    
+            if (data.session?.user) {
                 setSession(data.session);
-        
-                if (data.session?.user) {
-                    await fetchUserData(data.session.user.id);
-                    await fetchCompras(data.session.user.id);  // 👉 Llamar función aquí
-                } else {
-                    setIsAdmin(false); // Por defecto, no es admin si no hay sesión
-                    setCompras([]);  // Limpiar compras si no hay sesión
-
-                }
-            };
-        
-            fetchSession();
-        
-            const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+                await fetchUserData(data.session.user.id);
+                await fetchCompras(data.session.user.id);
+            } else {
+                setSession(null);
+                setUserData(null);
+                setIsAdmin(false);
+                setCompras([]);
+            }
+        };
+    
+        fetchSession();
+    
+        const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+            console.log("⚡ Cambio de sesión:", session); // Debug
+    
+            if (session?.user) {
                 setSession(session);
-        
-                if (session?.user) {
-                    fetchUserData(session.user.id);
-                    fetchCompras(session.user.id);  // 👉 Actualizar compras al cambiar usuario
-                } else {
-                    setIsAdmin(false); // Por defecto, no es admin si no hay sesión
-                    setCompras([]);
-                }
-            });
-        
-            return () => subscription?.unsubscribe?.();
-        
+                fetchUserData(session.user.id);
+                fetchCompras(session.user.id);
+            } else {
+                console.log("❌ Usuario cerró sesión, limpiando estado...");
+                setSession(null);
+                setUserData(null);
+                setIsAdmin(false);
+                setCompras([]);
+            }
+        });
+    
+        return () => {
+            console.log("🛑 Desuscribiendo onAuthStateChange"); // Debug
+            subscription?.unsubscribe?.();
+        };
     }, []);
+    
 
     const fetchUserData = async (uid) => {
         try {
