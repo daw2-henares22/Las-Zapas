@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1️⃣ Actualizar el nombre en la tabla Usuarios
+    //  Actualizar el nombre en la tabla Usuarios
     const { error: profileError } = await supabase
       .from("Usuarios")
       .update({ name_user: nombre, email: email })
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       throw profileError;
     }
 
-    // 2️⃣ Actualizar el correo en Supabase Auth
+    //  Actualizar el correo en Supabase Auth
     const { data: userData, error: authError } = await supabase.auth.admin.updateUserById(userId, {
       email,
       password: password || undefined, // Solo actualiza si se envía

@@ -1,9 +1,12 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../bd/supabase";
+import { useTranslation } from "react-i18next";
 
 const GlobalContext = createContext();
 
 export const GlobalProvider = ({ children }) => {
+
+    const {t} = useTranslation();
 
     // Esto es para las imagenes desde la base de datos para hombre y mujer
     const [zapatosHombre, setZapatosHombre] = useState([]);
@@ -12,17 +15,19 @@ export const GlobalProvider = ({ children }) => {
     const [zapatosMujer, setZapatosMujer] = useState([]);
     const [zapatillasMujer, setZapatillasMujer] = useState([]);
     const [botasMujer, setBotasMujer] = useState([]);
+    const [loadingUser, setLoadingUser] = useState(true); // ⏳ Nuevo estado de carga
     ////////////////////////////
 
     const [compras, setCompras] = useState([]);
     const [zapass, setZapass] = useState([]);
     const [activePopup, setActivePopup] = useState(null); // Manejo de popups
-    const [session, setSession] = useState(null); // Sesión actual del usuario
-    const [usuarios, setUsuarios] = useState([]); // Definición del estado usuarios
+    const [session, setSession] = useState(null); // Sesi贸n actual del usuario
+    const [usuarios, setUsuarios] = useState([]); // Definici贸n del estado usuarios
     const [userData, setUserData] = useState(null); // Datos del usuario
     const [isAdmin, setIsAdmin] = useState(false); // Indica si el usuario es administrador
     const [selectedItem, setSelectedItem] = useState(null);
     const [editData,setEditData] = useState(null);
+    const [errorSubmit, setErrorSubmit] = useState("");
     const [error, setError] = useState(null); // Manejo de errores
     const [tableData, setTableData] = useState({}); // Datos de las tablas (cache)
 
@@ -43,10 +48,10 @@ export const GlobalProvider = ({ children }) => {
         
                 if (data.session?.user) {
                     await fetchUserData(data.session.user.id);
-                    await fetchCompras(data.session.user.id);  // 👉 Llamar función aquí
+                    await fetchCompras(data.session.user.id);  // 馃憠 Llamar funci贸n aqu铆
                 } else {
-                    setIsAdmin(false); // Por defecto, no es admin si no hay sesión
-                    setCompras([]);  // Limpiar compras si no hay sesión
+                    setIsAdmin(false); // Por defecto, no es admin si no hay sesi贸n
+                    setCompras([]);  // Limpiar compras si no hay sesi贸n
 
                 }
             };
@@ -58,9 +63,9 @@ export const GlobalProvider = ({ children }) => {
         
                 if (session?.user) {
                     fetchUserData(session.user.id);
-                    fetchCompras(session.user.id);  // 👉 Actualizar compras al cambiar usuario
+                    fetchCompras(session.user.id);  // 馃憠 Actualizar compras al cambiar usuario
                 } else {
-                    setIsAdmin(false); // Por defecto, no es admin si no hay sesión
+                    setIsAdmin(false); // Por defecto, no es admin si no hay sesi贸n
                     setCompras([]);
                 }
             });
@@ -71,23 +76,35 @@ export const GlobalProvider = ({ children }) => {
 
     const fetchUserData = async (uid) => {
         try {
+            setLoadingUser(true); // Inicia carga
             const { data, error } = await supabase
-                .from("Usuarios") // Nombre de tu tabla
-                .select("role") // Selecciona únicamente el campo `role`
-                .eq("uid", uid) // Filtra por el ID del usuario
-                .single(); // Obtén un único resultado
+                .from("Usuarios")
+                .select("role, name_user")
+                .eq("uid", uid)
+                .single();
     
             if (error) throw error;
     
-            setIsAdmin(data.role === "admin"); // Actualiza `isAdmin` basado en el rol
+            setIsAdmin(data.role === "admin");
+    
+            setSession((prevSession) => ({
+                ...prevSession,
+                user: {
+                    ...prevSession.user,
+                    user_metadata: { ...prevSession.user.user_metadata, name: data.name_user },
+                },
+            }));
         } catch (error) {
             console.error("Error fetching user data:", error.message);
-            setIsAdmin(false); // Por seguridad, asume que no es admin si hay un error
+            setIsAdmin(false);
+        } finally {
+            setLoadingUser(false); // Finaliza carga
         }
     };
     
+    
     //Vista Usuarios
-     // Función para obtener los usuarios desde Supabase
+     // Funci贸n para obtener los usuarios desde Supabase
      const fetchUsuarios = async () => {
         try {
             // Obtiene todos los usuarios de la tabla "Usuarios"
@@ -101,7 +118,7 @@ export const GlobalProvider = ({ children }) => {
         }
     };
 
-    // Función para actualizar un usuario (cambiar nombre o rol)
+    // Funci贸n para actualizar un usuario (cambiar nombre o rol)
     const updateUser = async (id, updates) => {
         try {
             const { data, error } = await supabase.from("Usuarios").update(updates).eq("id", id).select();
@@ -118,7 +135,7 @@ export const GlobalProvider = ({ children }) => {
         }
     };
 
-    // Función para eliminar un usuario
+    // Funci贸n para eliminar un usuario
     const deleteUser = async (id) => {
         try {
             // Haz la solicitud al endpoint del backend
@@ -135,7 +152,7 @@ export const GlobalProvider = ({ children }) => {
                 throw new Error(error.error || 'Error al eliminar el usuario');
             }
     
-            // Si se elimina con éxito, actualiza el estado local
+            // Si se elimina con 茅xito, actualiza el estado local
             setUsuarios((prev) => prev.filter((user) => user.id !== id));
         } catch (error) {
             console.error('Error deleting user:', error.message);
@@ -212,7 +229,7 @@ export const GlobalProvider = ({ children }) => {
             const productosComprados = await Promise.all(
                 compras.map(async (compra) => {
                     const { data: producto, error: errorProducto } = await supabase
-                        .from(compra.tabla_producto) // Consultamos en la tabla específica
+                        .from(compra.tabla_producto) // Consultamos en la tabla espec铆fica
                         .select("nombre, imagen, precio")
                         .eq("id", compra.puid)
                         .single();
@@ -239,14 +256,14 @@ export const GlobalProvider = ({ children }) => {
 
     const handleOpenImage = (item) => {
         setSelectedItem(item); // Establece el elemento seleccionado para el popup.
-        openPopup("zapatoBotaDetail"); // Abre el popup específico de la imagen.
+        openPopup("zapatoBotaDetail"); // Abre el popup espec铆fico de la imagen.
     };
     
 
     const handleOpenEdit = (tableName, item) => {
-        setEditData(item); // Guarda los datos actuales en edición.
+        setEditData(item); // Guarda los datos actuales en edici贸n.
         setNewZapatoBota(item); // Actualiza el formulario con los datos del zapato.
-        openPopup("editZapatoBota"); // Abre el popup de edición.
+        openPopup("editZapatoBota"); // Abre el popup de edici贸n.
     };    
     
 
@@ -261,6 +278,7 @@ export const GlobalProvider = ({ children }) => {
     }
 
     const handleOpenPut = () => {
+        setErrorSubmit(""); // Limpia el mensaje de error al abrir el popup
         putZapatoBota();
         openPopup("newZapatoBota");
     }
@@ -268,50 +286,60 @@ export const GlobalProvider = ({ children }) => {
     const handleSubmit = async (tableName, newItem) => {
         try {
             const { created_at, ...dataToSubmit } = newItem; // Excluye created_at
-            const itemToSubmit = editData ? newItem : dataToSubmit; // Solo envía `created_at` si es necesario
+    
+            // Verificar si ya existe un zapato con el mismo nombre
+            const { data: existingData, error: fetchError } = await supabase
+                .from(tableName)
+                .select("id")
+                .eq("nombre", newItem.nombre);
+    
+            if (fetchError) throw fetchError;
+    
+            // Si ya existe y estamos en modo creación, muestra el error y detiene la ejecución
+            if (existingData.length > 0 && !editData) {
+                setErrorSubmit(t('Ya existe este nombre'));
+                return; // Detiene la ejecución si ya existe un zapato con el mismo nombre
+            }
     
             let data;
             if (editData) {
                 // Modo edición
                 const { data: updatedData, error } = await supabase
                     .from(tableName)
-                    .update(itemToSubmit)
+                    .update(dataToSubmit)
                     .eq("id", editData.id)
                     .select();
+    
                 if (error) throw error;
                 data = updatedData[0];
     
-                // Actualizar el estado zapass
+                // Actualizar estados localmente
                 setZapass(prev => prev.map(item => item.id === data.id ? data : item));
-    
-                // También actualiza tableData para reflejar los cambios en caché
-                setTableData((prev) => ({
+                setTableData(prev => ({
                     ...prev,
-                    [tableName]: prev[tableName]?.map((item) => item.id === data.id ? data : item)
+                    [tableName]: prev[tableName]?.map(item => item.id === data.id ? data : item),
                 }));
             } else {
                 // Modo creación
                 const { data: insertedData, error } = await supabase
                     .from(tableName)
-                    .insert([itemToSubmit])
+                    .insert([dataToSubmit])
                     .select();
+    
                 if (error) throw error;
                 data = insertedData[0];
     
-                // Agregar el nuevo elemento al estado zapass
+                // Agregar nuevo elemento al estado
                 setZapass(prev => [...prev, data]);
-    
-                // También actualiza tableData para reflejar los cambios en caché
-                setTableData((prev) => ({
+                setTableData(prev => ({
                     ...prev,
-                    [tableName]: [...(prev[tableName] || []), data]
+                    [tableName]: [...(prev[tableName] || []), data],
                 }));
             }
     
-            // Limpia el formulario y cierra el popup
+            // Limpiar formulario y cerrar popup
             setNewZapatoBota({
                 nombre: "",
-                created_at: "",
                 descripcion: "",
                 imagen: "",
                 precio: "",
@@ -319,10 +347,13 @@ export const GlobalProvider = ({ children }) => {
             setEditData(null);
             openPopup(null);
         } catch (error) {
-            console.error(`Error handling item in ${tableName}:`, error.message);
+            console.error(`Error en ${tableName}:`, error.message);
             setError(error.message);
         }
     };
+    
+    
+    
     
     
     
@@ -344,22 +375,32 @@ export const GlobalProvider = ({ children }) => {
 
     const handleChange = (editZapatoBota) => {
         const { name, value } = editZapatoBota.target;
+    
         setNewZapatoBota((prev) => ({
             ...prev,
             [name]: value,
         }));
+    
+        if (name === "nombre") {
+            setErrorSubmit(null); // Borra el error si el usuario cambia el nombre
+        }
     };
-
+    
+    
     const logout = async () => {
         try {
             await supabase.auth.signOut();
             setSession(null);
             setUserData(null);
+    
+            // 🔄 Forzar actualización de sesión después del logout
+            await supabase.auth.refreshSession();
+    
         } catch (error) {
-            console.error("Error logging out:", error.message);
+            console.error("Error cerrando sesión:", error.message);
             setError(error.message);
         }
-    };
+    }; 
 
     return (
         <GlobalContext.Provider value={{
@@ -377,6 +418,8 @@ export const GlobalProvider = ({ children }) => {
             setBotasMujer,
             compras,
             fetchCompras,
+            errorSubmit,
+            setErrorSubmit,
             zapass,
             setZapass,
             activePopup,
@@ -387,6 +430,7 @@ export const GlobalProvider = ({ children }) => {
             fetchUserData,
             usuarios,
             fetchUsuarios,
+            loadingUser,
             updateUser,
             deleteUser,
             fetchTableData,

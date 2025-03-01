@@ -72,6 +72,7 @@
     "No hay zapatos disponibles":"No shoes available",
     "Actualizar Zapato":"Update Shoe",
     "Añadir Nuevo Zapato":"Add New Shoe",
+    "Ya existe este nombre":"This name already exists",
 
     "Gestión de Usuarios":"User Management",
     "Correo":"Email",
@@ -124,7 +125,7 @@
     "Denegado":"Denied",
     "No tienes compras registradas":"You have no registered purchases",
     "No hay devoluciones pendientes":"There are no pending refunds",
-    
+
     "Sobre nosotros":"About us",
     "En":"In",
     "nos apasiona ofrecer el mejor calzado para cada ocasión. Nuestra tienda online cuenta con una amplia selección de":"we are passionate about offering the best footwear for every occasion. Our online store has a wide selection of",

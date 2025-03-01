@@ -20,6 +20,7 @@ export function ZapatillasMujer() {
         setNewZapatoBota,
         handleOpenPut,
         handleSubmit,
+        errorSubmit,
         handleChange,
         isAdmin
     } = useGlobalContext();
@@ -138,6 +139,11 @@ export function ZapatillasMujer() {
                             />
                         </CardBody>
                         <CardFooter className="pt-0">
+                            {errorSubmit && (
+                                <Typography variant="small" color="red" className="text-center">
+                                    {errorSubmit}
+                                </Typography>
+                            )}
                             <Button variant="gradient" fullWidth type="submit">
                                 {editData ? t('Actualizar Zapatillas') : t('Añadir Zapatillas')}
                             </Button>

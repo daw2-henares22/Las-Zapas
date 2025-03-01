@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@material-tailwind/react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { Login } from "./Login";
@@ -11,31 +11,58 @@ import { useTranslation } from "react-i18next";
 export const Header = () => {
   const { t } = useTranslation();
 
-
-  
-  const { isButtonDisabled, handleButtonClick, session, setSession, isAdmin, setIsAdmin, openPopup, logout } = useGlobalContext();
+  const { isButtonDisabled, handleButtonClick, session, setSession, isAdmin, setIsAdmin, openPopup, logout, loadingUser } = useGlobalContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para abrir/cerrar el menú móvil
   let navigate = useNavigate();
   const location = useLocation(); // Hook para obtener la ruta actual
 
+  // Estado para el modo oscuro
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  // Aplicar el modo oscuro al cargar la página
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
+
+  // Función para cambiar el modo
   function changeDarkMode() {
-    document.documentElement.classList.toggle("dark");
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem("theme", newMode ? "dark" : "light");
   }
 
   async function handleLogout() {
-    openPopup(null);
+    openPopup(null)
     await logout(); // Cierra sesión en Supabase
 
-    // Limpia manualmente el almacenamiento local
-    localStorage.removeItem("supabase.auth.token");
-    sessionStorage.removeItem("supabase.auth.token");
+
 
     setSession(null); // Limpia la sesión
     setIsAdmin(false); // Asegura que no es admin
     navigate("/"); // Redirige al home
-}
+  }
 
+  // async function handleLogout() {
+  //   // Cierra cualquier popup activo
+  //   openPopup(null);
 
+  //   const { error } = await supabase.auth.signOut();
+  //   if (error) {
+  //     console.error("Error during logout:", error);
+  //   } else {
+  //     await logout(); // Llama a la función de logout del contexto
+  //     openPopup(null); // Cierra cualquier popup activo
+  //     setSession(null); // Limpia la sesión
+  //     setIsAdmin(false); // Asegúrate de que el usuario no es administrador
+  //     navigate("/"); // Redirige a la página principal
+  //   }
+  // }
   
   function handleLoginClick() {
     setIsMenuOpen(false); // Cierra el menú móvil al abrir el popup
@@ -58,7 +85,7 @@ export const Header = () => {
           <Link to="/">Las Zapas</Link>
         </h1>
         {session && session.user && session.user.user_metadata && (
-          <p className="hidden md:block hover:text-gray-400  md:mr-[50px] md:ml-[30px] lg:ml[70px] xl:ml-[70px] flex-1 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]">{t('Bienvenido')} {session.user.user_metadata.name}</p>
+          <p className="hidden md:block hover:text-gray-400  md:mr-[50px] md:ml-[30px] lg:ml[70px] xl:ml-[70px] flex-1 font-semibold md:text-[15px] lg:text-[16px] xl:text-[16px]">{t('Bienvenido')} {loadingUser ? "" : session?.user?.user_metadata?.name}</p>
         )}
 
         {/* Menú para pantallas grandes */}
