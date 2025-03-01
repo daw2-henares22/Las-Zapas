@@ -9,10 +9,6 @@ export const Usuarios = () => {
     const [editUserId, setEditUserId] = useState(null);
     const [newName, setNewName] = useState("");
 
-    useEffect(() => {
-        fetchUsuarios();
-    }, [fetchUsuarios]);
-
     // Funci贸n para obtener los usuarios desde Supabase
          const fetchUsuarios = async () => {
             try {
@@ -27,6 +23,10 @@ export const Usuarios = () => {
             }
         };
     
+        useEffect(() => {
+            fetchUsuarios();
+        }, []);
+
         // Funci贸n para actualizar un usuario (cambiar nombre o rol)
         const updateUser = async (id, updates) => {
             try {
