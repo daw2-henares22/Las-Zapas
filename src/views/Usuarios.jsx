@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 export const Usuarios = () => {
     const { t } = useTranslation()
+    const { setError } = useGlobalContext();
     const [usuarios, setUsuarios] = useState([]); // Definici贸n del estado usuarios
     const [editUserId, setEditUserId] = useState(null);
     const [newName, setNewName] = useState("");
