@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { Button } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { supabase } from "../bd/supabase";
 
 export const Usuarios = () => {
     const { t } = useTranslation()
