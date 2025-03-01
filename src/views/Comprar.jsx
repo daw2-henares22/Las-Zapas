@@ -197,8 +197,8 @@ export function Comprar() {
       </Card>
       </div>
 
-      <Dialog size="xs" open={showSuccessPopup} handler={() => setShowSuccessPopup(false)}>
-        <Card className="mx-auto w-full max-w-[24rem]">
+      <Dialog size="xs" open={showSuccessPopup} handler={() => setShowSuccessPopup(false)} className="bg-transparent shadow-none">
+        <Card className="mx-auto w-full max-w-[24rem] bg-gray-100 dark:bg-blue-gray-900 dark:text-white">
           <CardBody className="flex flex-col items-center">
             <Typography variant="h4" color="green">
               {t('Compra realizada con éxito')}

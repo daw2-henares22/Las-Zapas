@@ -134,7 +134,7 @@ export const Usuarios = () => {
                                     <span
                                         className={`inline-block px-2 py-1 rounded-full text-sm font-medium ${
                                             user.role === "admin"
-                                                ? "bg-gray-800 text-gray-200"
+                                                ? "bg-gray-900 text-gray-100"
                                                 : "bg-gray-200 text-gray-800"
                                         }`}
                                     >
@@ -163,9 +163,9 @@ export const Usuarios = () => {
                                                 </Button>
                                                 <Button
                                                     size="sm"
-                                                    color="gray"
+                                                    color="blue-gray"
                                                     onClick={cancelEdit}
-                                                    className="hover:bg-gray-700"
+                                                    className="bg-gray-900 hover:bg-gray-700"
                                                 >
                                                     {t('Cancelar')}
                                                 </Button>
@@ -173,7 +173,7 @@ export const Usuarios = () => {
                                         ) : (
                                             <Button
                                                 size="sm"
-                                                color="blue"
+                                                color="green"
                                                 onClick={() => {
                                                     setEditUserId(user.id);
                                                     setNewName(user.name_user);

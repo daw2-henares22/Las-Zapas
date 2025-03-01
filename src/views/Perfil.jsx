@@ -194,14 +194,14 @@ const handleUpdateProfile = async () => {
         <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-4 mb-6">{t('Perfil')}</h1>
         <div className="flex justify-between">
           <button className={`capitalize text-2xl font-medium px-4 py-2 rounded-xl mb-4 
-            ${view === "compras" ? "text-gray-900 dark:text-gray-100 cursor-text select-text" : "transition duration-150 hover:scale-105 bg-gray-900 dark:bg-gray-200 text-gray-100 dark:text-gray-900"}`}
+            ${view === "compras" ? "text-gray-900 dark:text-gray-100 cursor-text select-text" : "transition duration-150 hover:scale-105 bg-gray-900 hover:bg-gray-700 dark:bg-gray-200 dark:hover:bg-gray-400 text-gray-100 dark:text-gray-900"}`}
             onClick={() => setView("compras")}
           >
             {t("Mis Compras")}
           </button>
 
           <button className={`capitalize text-2xl font-medium px-4 py-2 rounded-xl mb-4
-            ${view === "editar" ? "text-gray-900 dark:text-gray-100 cursor-text select-text" : "transition duration-150 hover:scale-105 bg-gray-900 dark:bg-gray-200 text-gray-100 dark:text-gray-900"}`}
+            ${view === "editar" ? "text-gray-900 dark:text-gray-100 cursor-text select-text" : "transition duration-150 hover:scale-105 bg-gray-900 hover:bg-gray-700 dark:bg-gray-200 dark:hover:bg-gray-400 text-gray-100 dark:text-gray-900"}`}
             onClick={() => setView("editar")}
           >
             {t("Editar")}
@@ -258,8 +258,8 @@ const handleUpdateProfile = async () => {
         </div>
         )}
       </div>
-      <Dialog size="xs" open={showModal} handler={() => setShowModal(false)}>
-        <Card className="mx-auto w-full max-w-[24rem]">
+      <Dialog size="xs" open={showModal} handler={() => setShowModal(false)} className="bg-transparent shadow-none">
+        <Card className="mx-auto w-full max-w-[24rem] bg-gray-100 dark:bg-blue-gray-900">
           <CardBody className="flex flex-col items-center">
             {!showMotivoInput ? (
               <>
@@ -269,7 +269,7 @@ const handleUpdateProfile = async () => {
                     : t('¿Seguro que quieres devolver este producto?')
                   }
                 </Typography>
-                <Typography className="mb-3 font-normal text-center text-gray-700">{selectedCompra?.producto?.nombre || "Producto desconocido"}</Typography>
+                <Typography className="mb-3 font-normal text-center text-gray-700 dark:text-gray-300">{selectedCompra?.producto?.nombre || "Producto desconocido"}</Typography>
                 <div className="flex justify-between w-full mt-4">
                 <Button className="text-[11px]" color="red" onClick={cancelCompraId ? handleConfirmCancelDevolucion : handleConfirmDevolucion}>
                   {t('Sí, estoy seguro')}
@@ -281,8 +281,8 @@ const handleUpdateProfile = async () => {
               </>
             ) : (
               <>
-                <Typography variant="h5" className="text-gray-800 font-extrabold">{t('Motivo de la devolución')}</Typography>
-                <Input label={t('Motivo')} value={motivo} onChange={(e) => { setMotivo(e.target.value); setErrorMotivo(""); }} className="w-full" disabled={loading} />
+                <Typography variant="h5" className="text-gray-800 dark:text-gray-200 font-extrabold">{t('Motivo de la devolución')}</Typography>
+                <Input color="blue-gray" className="text-gray-900 dark:text-gray-100 w-full" type="text" label={t('Motivo')} value={motivo} onChange={(e) => { setMotivo(e.target.value); setErrorMotivo(""); }} disabled={loading} />
                 {errorMotivo && <Typography className="text-red-600 text-sm mt-2">{errorMotivo}</Typography>}
                 <div className="flex justify-between w-full mt-4">
                   <Button color="green" onClick={selectedCompra && devoluciones[selectedCompra.id] ? handleUpdateDevolucion : handleEnviarDevolucion} disabled={loading}>
