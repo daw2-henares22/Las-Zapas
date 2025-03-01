@@ -22,7 +22,6 @@ export const GlobalProvider = ({ children }) => {
     const [zapass, setZapass] = useState([]);
     const [activePopup, setActivePopup] = useState(null); // Manejo de popups
     const [session, setSession] = useState(null); // Sesi贸n actual del usuario
-    const [usuarios, setUsuarios] = useState([]); // Definici贸n del estado usuarios
     const [userData, setUserData] = useState(null); // Datos del usuario
     const [isAdmin, setIsAdmin] = useState(false); // Indica si el usuario es administrador
     const [selectedItem, setSelectedItem] = useState(null);
@@ -102,67 +101,6 @@ export const GlobalProvider = ({ children }) => {
         }
     };
     
-    
-    //Vista Usuarios
-     // Funci贸n para obtener los usuarios desde Supabase
-     const fetchUsuarios = async () => {
-        try {
-            // Obtiene todos los usuarios de la tabla "Usuarios"
-            const { data, error } = await supabase.from("Usuarios").select("*");
-
-            if (error) throw error;
-            setUsuarios(data);
-        } catch (error) {
-            console.error("Error fetching users:", error.message);
-            setError(error.message);
-        }
-    };
-
-    // Funci贸n para actualizar un usuario (cambiar nombre o rol)
-    const updateUser = async (id, updates) => {
-        try {
-            const { data, error } = await supabase.from("Usuarios").update(updates).eq("id", id).select();
-
-            if (error) throw error;
-
-            // Actualiza la lista de usuarios en el estado local
-            setUsuarios((prev) => {
-                return prev.map((user) => (user.id === id ? data[0] : user));
-            });
-        } catch (error) {
-            console.error("Error updating user:", error.message);
-            setError(error.message);
-        }
-    };
-
-    // Funci贸n para eliminar un usuario
-    const deleteUser = async (id) => {
-        try {
-            // Haz la solicitud al endpoint del backend
-            const response = await fetch('https://las-zapass.vercel.app/api/delete-user', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id }),
-            });
-    
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || 'Error al eliminar el usuario');
-            }
-    
-            // Si se elimina con 茅xito, actualiza el estado local
-            setUsuarios((prev) => prev.filter((user) => user.id !== id));
-        } catch (error) {
-            console.error('Error deleting user:', error.message);
-            setError(error.message);
-        }
-    };
-    
-    
-
-    //Fin: Vista Usuarios
 
     const fetchTableData = async (tableName) => {
         if (tableData[tableName]) {
@@ -428,11 +366,7 @@ export const GlobalProvider = ({ children }) => {
             setSession,
             userData,
             fetchUserData,
-            usuarios,
-            fetchUsuarios,
             loadingUser,
-            updateUser,
-            deleteUser,
             fetchTableData,
             isAdmin,
             setIsAdmin,
