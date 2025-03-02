@@ -222,12 +222,12 @@ const handleUpdateProfile = async () => {
           {compras.length > 0 ? (
             compras.map((compra) => (
               <div key={compra.id} className="flex items-center from-gray-200 bg-gradient-to-bl dark:from-gray-700 p-5 rounded-lg shadow-md border hover:shadow-lg transition-all">
-                <img src={compra.producto?.imagen || "https://via.placeholder.com/100"} alt={compra.producto?.nombre} className="w-24 h-24 object-cover rounded-md" />
+                <img src={compra.imagen || "https://via.placeholder.com/100"} alt={compra.nombre} className="w-24 h-24 object-cover rounded-md" />
                 <div className="ml-5 flex-1 text-[13px] sm:text-[13px] md:text-[16px]">
-                  <h3 className="text-[14px] sm:text-lg md:text-lg lg:text-lg xl:text-lg font-semibold text-gray-900 dark:text-gray-100">{compra.producto?.nombre}</h3>
+                  <h3 className="text-[14px] sm:text-lg md:text-lg lg:text-lg xl:text-lg font-semibold text-gray-900 dark:text-gray-100">{compra.nombre}</h3>
                   <p className="text-gray-600 dark:text-gray-300">{compra.created_at.split("T")[0]}</p>
                   <p className="text-gray-900 dark:text-gray-100">{t('Talla')} {compra.talla}</p>
-                  <p className="text-gray-900 dark:text-gray-100 font-bold">${compra.producto?.precio}</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-bold">{compra.precio}</p>
                   {devoluciones[compra.id] ? (
                     <div className="mt-2">
                       <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
@@ -269,7 +269,7 @@ const handleUpdateProfile = async () => {
                     : t('¿Seguro que quieres devolver este producto?')
                   }
                 </Typography>
-                <Typography className="mb-3 font-normal text-center text-gray-700 dark:text-gray-300">{selectedCompra?.producto?.nombre || "Producto desconocido"}</Typography>
+                <Typography className="mb-3 font-normal text-center text-gray-700 dark:text-gray-300">{selectedCompra?.nombre || "Producto desconocido"}</Typography>
                 <div className="flex justify-between w-full mt-4">
                 <Button className="text-[11px]" color="red" onClick={cancelCompraId ? handleConfirmCancelDevolucion : handleConfirmDevolucion}>
                   {t('Sí, estoy seguro')}

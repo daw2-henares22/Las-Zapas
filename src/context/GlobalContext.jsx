@@ -158,37 +158,18 @@ export const GlobalProvider = ({ children }) => {
         try {
             const { data: compras, error } = await supabase
                 .from("Compras")
-                .select("id, created_at, puid, tabla_producto, talla")
+                .select("id, created_at, puid, nombre, imagen, precio, tabla_producto, talla")
                 .eq("uid", userId);
-            
+    
             if (error) throw error;
     
-            // Obtener los detalles de cada producto de su tabla respectiva
-            const productosComprados = await Promise.all(
-                compras.map(async (compra) => {
-                    const { data: producto, error: errorProducto } = await supabase
-                        .from(compra.tabla_producto) // Consultamos en la tabla espec铆fica
-                        .select("nombre, imagen, precio")
-                        .eq("id", compra.puid)
-                        .single();
-                    
-                    if (errorProducto) {
-                        console.error(`Error obteniendo producto ${compra.puid} de ${compra.tabla_producto}:`, errorProducto);
-                        return null;
-                    }
-    
-                    return { ...compra, producto };
-                })
-            );
-    
-            // Filtramos los productos que se encontraron correctamente
-            setCompras(productosComprados.filter(item => item !== null));
-    
+            setCompras(compras);
         } catch (error) {
             console.error("Error obteniendo compras:", error.message);
             setError(error.message);
         }
     };
+    
     
     /////////////////
 

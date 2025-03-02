@@ -92,9 +92,12 @@ export function Comprar() {
         .insert(selectedTallas.map(talla => ({
           uid: session?.user.id,
           puid: item?.id,
+          nombre: nombre,
+          imagen: item.imagen,
           tabla_producto: tableName,
           seccion: seccionProducto,
           talla: talla,
+          precio: item?.precio,
           created_at: new Date()
         })));
   

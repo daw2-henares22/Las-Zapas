@@ -15,8 +15,8 @@ export function Devoluciones() {
       // 1️⃣ Obtener las devoluciones con la compra asociada
       const { data: devolucionesData, error: devolucionesError } = await supabase
         .from("Devoluciones")
-        .select("id, estado, motivo, compra_id, seccion, user_id"); // Agregamos user_id
-    
+        .select("id, estado, motivo, compra_id, seccion, user_id, talla, precio"); // Agregamos user_id
+        
       if (devolucionesError) {
         console.error("Error obteniendo devoluciones:", devolucionesError);
         setLoading(false);
@@ -27,7 +27,7 @@ export function Devoluciones() {
       const compraIds = devolucionesData.map((dev) => dev.compra_id);
       const { data: compras, error: comprasError } = await supabase
         .from("Compras")
-        .select("id, puid, tabla_producto, seccion")
+        .select("id, puid, nombre, imagen, tabla_producto, talla, seccion, precio")
         .in("id", compraIds);
     
       if (comprasError) {
@@ -36,30 +36,7 @@ export function Devoluciones() {
         return;
       }
     
-      // 3️⃣ Obtener los productos de sus respectivas tablas
-      let productosFinales = [];
-      for (const compra of compras) {
-        if (!compra.tabla_producto || !compra.puid) continue;
-    
-        const { data: producto, error: productoError } = await supabase
-          .from(compra.tabla_producto) // Tabla dinámica
-          .select("id, nombre, imagen, talla")
-          .eq("id", compra.puid)
-          .single();
-          console.log(`🔍 Buscando producto en tabla: ${compra.tabla_producto}, con ID: ${compra.puid}`);
-          console.log("Producto encontrado:", producto);
-        if (productoError) {
-          console.error(`Error obteniendo producto de ${compra.tabla_producto}:`, productoError);
-          continue;
-        }
-    
-        productosFinales.push({ ...producto, compra_id: compra.id });
-      }
-    
-      // Elimina duplicados por compra_id
-      const productosFinalesUnicos = productosFinales.filter(
-        (value, index, self) => index === self.findIndex((t) => t.compra_id === value.compra_id)
-      );
+     
     
       // 4️⃣ Obtener los datos de los usuarios que solicitaron la devolución
      
@@ -75,17 +52,17 @@ if (usuariosError) {
     
       // 5️⃣ Unir los productos y los usuarios con sus devoluciones
       const devolucionesConProductosYUsuarios = devolucionesData.map((dev) => {
-        const producto = productosFinalesUnicos.find((p) => p.compra_id === dev.compra_id);
+      
         const compra = compras.find((c) => c.id === dev.compra_id);
         const usuario = usuarios.find((u) => u.uid === dev.user_id);
 
         return {
           ...dev,
-          nombre_producto: producto?.nombre || "Sin producto",
-          imagen_producto: producto?.imagen || "https://via.placeholder.com/150",
-          categoria_producto: producto?.categoria || "Desconocida",
+          nombre_producto: compra?.nombre || "Sin producto",
+          imagen_producto: compra?.imagen || "https://via.placeholder.com/150",
           seccion_producto: compra?.seccion || "Desconocida",
-          talla_producto: producto?.talla || "No especificada",
+          talla_producto: compra?.talla || "No especificada",
+          precio_producto: compra?.precio || "Desconocido",
           usuario_nombre: usuario?.name_user || "Desconocido",
           usuario_email: usuario?.email || "Sin correo",
         };
@@ -146,18 +123,14 @@ if (usuariosError) {
   </Typography>
   <Typography
   className={`text-gray-600 font-semibold text-sm whitespace-nowrap overflow-hidden text-ellipsis 
-  ${dev.estado === "Pendiente" 
-    ? "md:max-w-[300px] lg:max-w-[350px] md:ml-[74px] lg:ml-[74px]" 
-    : "max-w-[200px] md:max-w-[250px] lg:max-w-[300px]"
-  }`}
+  ${dev.estado === "Pendiente" ? "md:ml-[74px] lg:ml-[74px]" : ""}`}
 >
   {t('Correo')}: <span className="font-medium text-gray-500">{dev.usuario_email}</span>
 </Typography>
 
   <Typography
-    className={`text-gray-600 font-semibold text-sm ${
-      dev.estado === "Pendiente" ? "md:ml-[146px] lg:ml-[146px]" : ""
-    }`}
+    className={`text-gray-600 font-semibold text-sm
+      ${dev.estado === "Pendiente" ? "md:ml-[146px]" : ""}`}
   >
     {t('Producto')}: <span className="font-medium text-gray-500">{dev.nombre_producto}</span>
   </Typography>
@@ -167,16 +140,14 @@ if (usuariosError) {
     {t('Motivo')}: <span className="italic font-medium text-gray-500">{dev.motivo}</span>
   </Typography>
   <Typography
-    className={`text-gray-600 font-semibold text-sm ${
-      dev.estado === "Pendiente" ? "md:ml-[74px] lg:ml-[74px] xl:[0px]" : ""
-    }`}
+    className={`text-gray-600 font-semibold text-sm
+      ${dev.estado === "Pendiente" ? "md:ml-[74px]" : ""}`}
   >
     {t('Sección')}: <span className="font-medium text-gray-500">{dev.seccion_producto}</span>
   </Typography>
   <Typography
-    className={`text-gray-600 font-semibold text-sm ${
-      dev.estado === "Pendiente" ? "md:ml-[146px] lg:ml-[146px] xl:[0px]" : ""
-    }`}
+    className={`text-gray-600 font-semibold text-sm
+      ${dev.estado === "Pendiente" ? "md:ml-[144px]" : ""}`}
   >
     {t('Talla')}: <span className="font-medium text-gray-500">{dev.talla_producto}</span>
   </Typography>
@@ -193,6 +164,12 @@ if (usuariosError) {
     >
       {t(dev.estado)}
     </span>
+  </Typography>
+  <Typography
+    className={`text-gray-600 font-semibold text-sm
+      ${dev.estado === "Pendiente" ? "md:ml-[74px]" : ""}`}
+  >
+    {t('Precio')}: <span className="font-medium text-gray-500">{dev.precio_producto}</span>
   </Typography>
 </div>
 
