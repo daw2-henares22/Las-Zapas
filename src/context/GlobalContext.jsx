@@ -158,7 +158,7 @@ export const GlobalProvider = ({ children }) => {
         try {
             const { data: compras, error } = await supabase
                 .from("Compras")
-                .select("id, created_at, puid, nombre, imagen, precio, tabla_producto, talla")
+                .select("id, created_at, puid, nombre, imagen, precio, tabla_producto, talla, seccion")
                 .eq("uid", userId);
     
             if (error) throw error;
@@ -169,7 +169,6 @@ export const GlobalProvider = ({ children }) => {
             setError(error.message);
         }
     };
-    
     
     /////////////////
 
