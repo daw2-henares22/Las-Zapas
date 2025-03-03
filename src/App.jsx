@@ -41,6 +41,7 @@ export default function App() {
         <Route path='/zapatosMujer' element={<ZapatosDeVestirMujer />} />
         <Route path='/usuarios' element={<Usuarios />} />
         <Route path='/perfil' element={<Perfil />} />
+        <Route path="/perfil/:id" element={<Perfil />} />
         <Route path='/devoluciones' element={<Devoluciones />} />
         <Route path='/comprar/:tableName/:nombre' element={<Comprar />} />
         <Route path='/sobreNosotros' element={<SobreNosotros />} />

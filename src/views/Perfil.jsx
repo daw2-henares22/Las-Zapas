@@ -26,13 +26,14 @@ export function Perfil() {
 
 // Guardar en localStorage cuando cambia la vista
 useEffect(() => {
-  localStorage.setItem("perfilView", view);
-}, [view]);
+  const storedView = localStorage.getItem("perfilView");
+  if (storedView) setView(storedView);
+}, []);
+
 
   useEffect(() => {
-    if (session?.user?.id) {
+    if (!session?.user?.id) return
         fetchCompras(session.user.id);
-    }
 }, [session]);  // Se ejecuta cuando la sesión cambia
 
 const handleUpdateProfile = async () => {
@@ -273,7 +274,7 @@ const handleUpdateProfile = async () => {
                     : t('¿Seguro que quieres devolver este producto?')
                   }
                 </Typography>
-                <Typography className="mb-3 font-normal text-center text-gray-700 dark:text-gray-300">{selectedCompra?.nombre || compras.producto?.nombre}</Typography>
+                <Typography className="mb-3 font-normal text-center text-gray-700 dark:text-gray-300">{selectedCompra?.nombre || ""}</Typography>
                 <div className="flex justify-between w-full mt-4">
                 <Button className="text-[11px]" color="red" onClick={cancelCompraId ? handleConfirmCancelDevolucion : handleConfirmDevolucion}>
                   {t('Sí, estoy seguro')}

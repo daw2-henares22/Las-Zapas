@@ -3,10 +3,12 @@ import { useGlobalContext } from "../context/GlobalContext";
 import { Button } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../bd/supabase";
+import { useNavigate } from "react-router-dom";
 
 export const Usuarios = () => {
     const { t } = useTranslation()
     const { setError } = useGlobalContext();
+    const navigate = useNavigate();
     const [usuarios, setUsuarios] = useState([]); // Definici贸n del estado usuarios
     const [editUserId, setEditUserId] = useState(null);
     const [newName, setNewName] = useState("");
@@ -126,7 +128,12 @@ export const Usuarios = () => {
                                             className="px-2 py-1 border border-gray-300 rounded-md dark:text-gray-800"
                                         />
                                     ) : (
-                                        user.name_user
+                                        <button
+                                            onClick={() => navigate(`/perfil/${user.id}`)}
+                                            className="transition duration-150 hover:scale-105"
+                                        >
+                                            {user.name_user}
+                                        </button>
                                     )}
                                 </td>
                                 <td className="px-6 py-4">{user.email}</td>
