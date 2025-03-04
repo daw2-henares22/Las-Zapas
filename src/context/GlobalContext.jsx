@@ -73,6 +73,34 @@ export const GlobalProvider = ({ children }) => {
         
     }, []);
 
+    // const fetchUserData = async (uid) => {
+    //     try {
+    //         setLoadingUser(true); // Inicia carga
+    //         const { data, error } = await supabase
+    //             .from("Usuarios")
+    //             .select("role, name_user")
+    //             .eq("uid", uid)
+    //             .single();
+    
+    //         if (error) throw error;
+    
+    //         setIsAdmin(data.role === "admin");
+    
+    //         setSession((prevSession) => ({
+    //             ...prevSession,
+    //             user: {
+    //                 ...prevSession.user,
+    //                 user_metadata: { ...prevSession.user.user_metadata, name: data.name_user },
+    //             },
+    //         }));
+    //     } catch (error) {
+    //         console.error("Error fetching user data:", error.message);
+    //         setIsAdmin(false);
+    //     } finally {
+    //         setLoadingUser(false); // Finaliza carga
+    //     }
+    // };
+
     const fetchUserData = async (uid) => {
         try {
             setLoadingUser(true); // Inicia carga
@@ -86,16 +114,11 @@ export const GlobalProvider = ({ children }) => {
     
             setIsAdmin(data.role === "admin");
     
-            setSession((prevSession) => ({
-                ...prevSession,
-                user: {
-                    ...prevSession.user,
-                    user_metadata: { ...prevSession.user.user_metadata, name: data.name_user },
-                },
-            }));
+            return (data)
         } catch (error) {
             console.error("Error fetching user data:", error.message);
             setIsAdmin(false);
+            return null;
         } finally {
             setLoadingUser(false); // Finaliza carga
         }
@@ -335,6 +358,7 @@ export const GlobalProvider = ({ children }) => {
             botasMujer,
             setBotasMujer,
             compras,
+            setCompras,
             fetchCompras,
             errorSubmit,
             setErrorSubmit,

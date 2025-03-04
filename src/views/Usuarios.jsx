@@ -129,7 +129,7 @@ export const Usuarios = () => {
                                         />
                                     ) : (
                                         <button
-                                            onClick={() => navigate(`/perfil/${user.id}`)}
+                                            onClick={() => navigate(`/perfil/${user.uid}`)}
                                             className="transition duration-150 hover:scale-105"
                                         >
                                             {user.name_user}

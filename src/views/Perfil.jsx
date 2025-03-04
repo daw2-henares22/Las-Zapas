@@ -3,12 +3,14 @@ import { useGlobalContext } from "../context/GlobalContext";
 import { Dialog, Button, Typography, Input, Card, CardBody, Alert } from "@material-tailwind/react";
 import { supabase } from "../bd/supabase";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+
 
 export function Perfil() {
 
   const { t } = useTranslation();
 
-  const { compras, session, setSession, fetchCompras, fetchUserData } = useGlobalContext();
+  const { compras, setCompras, session, setSession, fetchCompras, fetchUserData } = useGlobalContext();
   const [selectedCompra, setSelectedCompra] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [motivo, setMotivo] = useState("");
@@ -23,18 +25,24 @@ export function Perfil() {
   const [email, setEmail] = useState(session?.user?.email || "");
   const [nombre, setNombre] = useState("");
   const [password, setPassword] = useState("");
+  const { id } = useParams(); // Obtiene el id desde la URL
+  const userId = id || session?.user?.id; // Usa el id de la URL o el de la sesión si no hay id
 
+ 
 // Guardar en localStorage cuando cambia la vista
 useEffect(() => {
-  const storedView = localStorage.getItem("perfilView");
-  if (storedView) setView(storedView);
-}, []);
+  localStorage.setItem("perfilView", view);
+}, [view]);
 
+useEffect(() => {
+  if (!userId) return;
 
-  useEffect(() => {
-    if (!session?.user?.id) return
-        fetchCompras(session.user.id);
-}, [session]);  // Se ejecuta cuando la sesión cambia
+    if (userId !== session?.user?.id) {
+        setCompras([]); // Limpia solo si no es tu perfil
+    }
+
+    fetchCompras(userId);
+}, [userId]);
 
 const handleUpdateProfile = async () => {
   if (!email.trim() || !nombre.trim()) {
