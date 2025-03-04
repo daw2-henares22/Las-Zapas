@@ -46,52 +46,36 @@ useEffect(() => {
 }, [userId]);
 
 useEffect(() => {
-    setUsuario(null);
+  setUsuario(null); // Limpia el usuario antes de buscar uno nuevo
 
-    const fetchUsuario = async () => {
-        try {
-            if (!id) {
-                setUsuario({
-                    uid: session?.user?.id,
-                    name_user: session?.user?.user_metadata?.name || "Usuario",
-                });
-                return;
-            }
+  const fetchUsuario = async () => {
+    try {
+      if (!id) {
+        // Si no hay `id` en la URL, cargar el usuario de la sesión
+        setUsuario({
+          uid: session?.user?.id,
+          name_user: session?.user?.user_metadata?.name || "Usuario",
+        });
+        return;
+      }
 
-            // Si `id` no es un UUID, asumimos que es `name_user`
-            let userId = id;
-            if (!id.match(/^[0-9a-fA-F-]{36}$/)) {
-                const { data, error } = await supabase
-                    .from("Usuarios")
-                    .select("uid, name_user")
-                    .eq("name_user", id) // Buscar por nombre de usuario
-                    .single();
+      const { data, error } = await supabase
+        .from("Usuarios")
+        .select("*")
+        .eq("uid", id)
+        .single();
 
-                if (error) throw error;
-                userId = data.uid; // Obtener el UID real
-            }
+      if (error) throw error;
+      setUsuario(data);
+      window.history.replaceState(null, "", `/perfil/${data.name_user}`);
+    } catch (error) {
+      console.error("Error fetching user:", error.message);
+      setError(error.message);
+    }
+  };
 
-            // Buscar el usuario con el UID correcto
-            const { data, error } = await supabase
-                .from("Usuarios")
-                .select("uid, name_user")
-                .eq("uid", userId)
-                .single();
-
-            if (error) throw error;
-            setUsuario(data);
-
-            // Cambiar la URL visible sin recargar la página
-            window.history.replaceState(null, "", `/perfil/${data.name_user}`);
-        } catch (error) {
-            console.error("Error fetching user:", error.message);
-            setError(error.message);
-        }
-    };
-
-    fetchUsuario();
+  fetchUsuario();
 }, [id, session]);
-
 
 const handleUpdateProfile = async () => {
   if (!email.trim() || !nombre.trim()) {
