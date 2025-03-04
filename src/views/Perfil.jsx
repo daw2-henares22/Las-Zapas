@@ -10,7 +10,7 @@ export function Perfil() {
 
   const { t } = useTranslation();
 
-  const { compras, setCompras, session, setSession, fetchCompras, fetchUserData } = useGlobalContext();
+  const { compras, setCompras, session, setSession, fetchCompras, fetchUserData, setError } = useGlobalContext();
   const [selectedCompra, setSelectedCompra] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [motivo, setMotivo] = useState("");
@@ -25,6 +25,7 @@ export function Perfil() {
   const [email, setEmail] = useState(session?.user?.email || "");
   const [nombre, setNombre] = useState("");
   const [password, setPassword] = useState("");
+  const [usuario, setUsuario] = useState(null)
   const { id } = useParams(); // Obtiene el id desde la URL
   const userId = id || session?.user?.id; // Usa el id de la URL o el de la sesión si no hay id
 
@@ -43,6 +44,54 @@ useEffect(() => {
 
     fetchCompras(userId);
 }, [userId]);
+
+useEffect(() => {
+    setUsuario(null);
+
+    const fetchUsuario = async () => {
+        try {
+            if (!id) {
+                setUsuario({
+                    uid: session?.user?.id,
+                    name_user: session?.user?.user_metadata?.name || "Usuario",
+                });
+                return;
+            }
+
+            // Si `id` no es un UUID, asumimos que es `name_user`
+            let userId = id;
+            if (!id.match(/^[0-9a-fA-F-]{36}$/)) {
+                const { data, error } = await supabase
+                    .from("Usuarios")
+                    .select("uid, name_user")
+                    .eq("name_user", id) // Buscar por nombre de usuario
+                    .single();
+
+                if (error) throw error;
+                userId = data.uid; // Obtener el UID real
+            }
+
+            // Buscar el usuario con el UID correcto
+            const { data, error } = await supabase
+                .from("Usuarios")
+                .select("uid, name_user")
+                .eq("uid", userId)
+                .single();
+
+            if (error) throw error;
+            setUsuario(data);
+
+            // Cambiar la URL visible sin recargar la página
+            window.history.replaceState(null, "", `/perfil/${data.name_user}`);
+        } catch (error) {
+            console.error("Error fetching user:", error.message);
+            setError(error.message);
+        }
+    };
+
+    fetchUsuario();
+}, [id, session]);
+
 
 const handleUpdateProfile = async () => {
   if (!email.trim() || !nombre.trim()) {
@@ -200,7 +249,15 @@ const handleUpdateProfile = async () => {
   return (
     <div className="min-h-screen bg-gradient-to-bl from-gray-200 dark:from-gray-800 p-6 pt-24 pb-20 flex justify-center items-center">
       <div className="max-w-3xl w-full bg-white dark:bg-gray-800 shadow-2xl rounded-lg p-8 border border-gray-200 dark:border-gray-600">
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-4 mb-6">{t('Perfil')}</h1>
+        <div className="flex justify-between border-b pb-4 mb-6">
+          <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 ">{t('Perfil')}</h1>
+          {/* Mostrar el nombre del usuario si existe */}
+            {usuario && usuario.uid !== session?.user?.id ? (
+                    <h2 className="text-3xl font-semibold text-gray-700 dark:text-gray-300">
+                        {usuario.name_user}
+                    </h2>
+              ) : null}
+        </div>
         <div className="flex justify-between">
           <button className={`capitalize text-2xl font-medium px-4 py-2 rounded-xl mb-4 
             ${view === "compras" ? "text-gray-900 dark:text-gray-100 cursor-text select-text" : "transition duration-150 hover:scale-105 bg-gray-900 hover:bg-gray-700 dark:bg-gray-200 dark:hover:bg-gray-400 text-gray-100 dark:text-gray-900"}`}
@@ -219,9 +276,9 @@ const handleUpdateProfile = async () => {
 
         {view === "editar" ? (
           <div className="space-y-4">
-            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" type="text" label={t("Nombre")} value={nombre} onChange={(e) => setNombre(e.target.value)} />
-            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" type="email" label={t("Correo electrónico")} value={email} onChange={(e) => setEmail(e.target.value)} />
-            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" label={t("Nueva contraseña")} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" type="text" label={t("Nombre")} placeholder={session?.user?.user_metadata?.name} value={nombre} onChange={(e) => setNombre(e.target.value)} />
+            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" type="email" label={t("Correo electrónico")} placeholder={session?.user?.email} value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input color="blue-gray" className="text-gray-900 dark:text-gray-100" label={t("Nueva contraseña")} type="password" placeholder="****" value={password} onChange={(e) => setPassword(e.target.value)} />
             <Button color="green" onClick={handleUpdateProfile}>{t("Guardar cambios")}</Button>
           </div>
         ) : (

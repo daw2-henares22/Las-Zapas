@@ -4,7 +4,6 @@ import { useGlobalContext } from "../context/GlobalContext";
 import { Login } from "./Login";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ImContrast } from "react-icons/im";
-import { supabase } from "../bd/supabase";
 import { LanguageToggleButton } from "./LanguageToggleButton";
 import { useTranslation } from "react-i18next";
 

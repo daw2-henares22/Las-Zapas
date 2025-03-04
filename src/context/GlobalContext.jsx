@@ -73,6 +73,31 @@ export const GlobalProvider = ({ children }) => {
         
     }, []);
 
+    const fetchUserData = async (uid) => {
+        try {
+            setLoadingUser(true); // Inicia carga
+            const { data, error } = await supabase
+                .from("Usuarios")
+                .select("role, name_user")
+                .eq("uid", uid)
+                .single();
+            if (error) throw error;
+            setIsAdmin(data.role === "admin");
+            setSession((prevSession) => ({
+                ...prevSession,
+                user: {
+                    ...prevSession.user,
+                    user_metadata: { ...prevSession.user.user_metadata, name: data.name_user },
+                },
+            }));
+        } catch (error) {
+            console.error("Error fetching user data:", error.message);
+            setIsAdmin(false);
+        } finally {
+            setLoadingUser(false); // Finaliza carga
+        }
+    };
+
     // const fetchUserData = async (uid) => {
     //     try {
     //         setLoadingUser(true); // Inicia carga
@@ -86,43 +111,15 @@ export const GlobalProvider = ({ children }) => {
     
     //         setIsAdmin(data.role === "admin");
     
-    //         setSession((prevSession) => ({
-    //             ...prevSession,
-    //             user: {
-    //                 ...prevSession.user,
-    //                 user_metadata: { ...prevSession.user.user_metadata, name: data.name_user },
-    //             },
-    //         }));
+    //         return (data)
     //     } catch (error) {
     //         console.error("Error fetching user data:", error.message);
     //         setIsAdmin(false);
+    //         return null;
     //     } finally {
     //         setLoadingUser(false); // Finaliza carga
     //     }
     // };
-
-    const fetchUserData = async (uid) => {
-        try {
-            setLoadingUser(true); // Inicia carga
-            const { data, error } = await supabase
-                .from("Usuarios")
-                .select("role, name_user")
-                .eq("uid", uid)
-                .single();
-    
-            if (error) throw error;
-    
-            setIsAdmin(data.role === "admin");
-    
-            return (data)
-        } catch (error) {
-            console.error("Error fetching user data:", error.message);
-            setIsAdmin(false);
-            return null;
-        } finally {
-            setLoadingUser(false); // Finaliza carga
-        }
-    };
     
 
     const fetchTableData = async (tableName) => {
@@ -177,8 +174,23 @@ export const GlobalProvider = ({ children }) => {
 
     //Compras
 
-    const fetchCompras = async (userId) => {
+    const fetchCompras = async (userIdentifier) => {
         try {
+            let userId = userIdentifier;
+    
+            // Si el `userId` no tiene formato UUID, buscar el UID en la base de datos
+            if (!userId.match(/^[0-9a-fA-F-]{36}$/)) {
+                const { data, error } = await supabase
+                    .from("Usuarios")
+                    .select("uid")
+                    .eq("name_user", userId)
+                    .single();
+    
+                if (error) throw error;
+                userId = data.uid; // Ahora tenemos el UID correcto
+            }
+    
+            // Ahora sí hacemos la consulta con el UID correcto
             const { data: compras, error } = await supabase
                 .from("Compras")
                 .select("id, created_at, puid, nombre, imagen, precio, tabla_producto, talla, seccion")
@@ -192,6 +204,7 @@ export const GlobalProvider = ({ children }) => {
             setError(error.message);
         }
     };
+    
     
     /////////////////
 
@@ -361,6 +374,7 @@ export const GlobalProvider = ({ children }) => {
             setCompras,
             fetchCompras,
             errorSubmit,
+            setError,
             setErrorSubmit,
             zapass,
             setZapass,
