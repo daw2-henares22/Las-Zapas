@@ -46,8 +46,6 @@ export function Devoluciones() {
 
 if (usuariosError) {
   console.error("Error obteniendo usuarios:", usuariosError);
-} else {
-  console.log("Usuarios obtenidos:", usuarios);
 }
     
       // 5️⃣ Unir los productos y los usuarios con sus devoluciones
@@ -87,7 +85,6 @@ if (usuariosError) {
     }
     setLoading(false);
   };
-  console.log("hola");  // Verifica la estructura de la compra y si la propiedad 'seccion' existe
   
 
   return (

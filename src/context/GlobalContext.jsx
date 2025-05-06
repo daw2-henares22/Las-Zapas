@@ -21,7 +21,7 @@ export const GlobalProvider = ({ children }) => {
     const [compras, setCompras] = useState([]);
     const [zapass, setZapass] = useState([]);
     const [activePopup, setActivePopup] = useState(null); // Manejo de popups
-    const [session, setSession] = useState(null); // Sesi贸n actual del usuario
+    const [session, setSession] = useState(null); // Sesion actual del usuario
     const [userData, setUserData] = useState(null); // Datos del usuario
     const [isAdmin, setIsAdmin] = useState(false); // Indica si el usuario es administrador
     const [selectedItem, setSelectedItem] = useState(null);
@@ -47,10 +47,10 @@ export const GlobalProvider = ({ children }) => {
         
                 if (data.session?.user) {
                     await fetchUserData(data.session.user.id);
-                    await fetchCompras(data.session.user.id);  // 馃憠 Llamar funci贸n aqu铆
+                    await fetchCompras(data.session.user.id);  // Llamar funcion aqui
                 } else {
-                    setIsAdmin(false); // Por defecto, no es admin si no hay sesi贸n
-                    setCompras([]);  // Limpiar compras si no hay sesi贸n
+                    setIsAdmin(false); // Por defecto, no es admin si no hay sesion
+                    setCompras([]);  // Limpiar compras si no hay sesion
 
                 }
             };
@@ -62,9 +62,9 @@ export const GlobalProvider = ({ children }) => {
         
                 if (session?.user) {
                     fetchUserData(session.user.id);
-                    fetchCompras(session.user.id);  // 馃憠 Actualizar compras al cambiar usuario
+                    fetchCompras(session.user.id);  // Actualizar compras al cambiar usuario
                 } else {
-                    setIsAdmin(false); // Por defecto, no es admin si no hay sesi贸n
+                    setIsAdmin(false); // Por defecto, no es admin si no hay sesion
                     setCompras([]);
                 }
             });
@@ -97,29 +97,6 @@ export const GlobalProvider = ({ children }) => {
             setLoadingUser(false); // Finaliza carga
         }
     };
-
-    // const fetchUserData = async (uid) => {
-    //     try {
-    //         setLoadingUser(true); // Inicia carga
-    //         const { data, error } = await supabase
-    //             .from("Usuarios")
-    //             .select("role, name_user")
-    //             .eq("uid", uid)
-    //             .single();
-    
-    //         if (error) throw error;
-    
-    //         setIsAdmin(data.role === "admin");
-    
-    //         return (data)
-    //     } catch (error) {
-    //         console.error("Error fetching user data:", error.message);
-    //         setIsAdmin(false);
-    //         return null;
-    //     } finally {
-    //         setLoadingUser(false); // Finaliza carga
-    //     }
-    // };
     
 
     const fetchTableData = async (tableName) => {
@@ -210,14 +187,14 @@ export const GlobalProvider = ({ children }) => {
 
     const handleOpenImage = (item) => {
         setSelectedItem(item); // Establece el elemento seleccionado para el popup.
-        openPopup("zapatoBotaDetail"); // Abre el popup espec铆fico de la imagen.
+        openPopup("zapatoBotaDetail"); // Abre el popup especifico de la imagen.
     };
     
 
     const handleOpenEdit = (tableName, item) => {
-        setEditData(item); // Guarda los datos actuales en edici贸n.
+        setEditData(item); // Guarda los datos actuales en edicion.
         setNewZapatoBota(item); // Actualiza el formulario con los datos del zapato.
-        openPopup("editZapatoBota"); // Abre el popup de edici贸n.
+        openPopup("editZapatoBota"); // Abre el popup de edicion.
     };    
     
 
